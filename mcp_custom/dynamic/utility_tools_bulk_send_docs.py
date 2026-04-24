@@ -1,0 +1,30 @@
+import os
+import requests
+import config
+import sys, os; sys.path.insert(0, os.getcwd()) if os.getcwd() not in sys.path else None;
+from mcp_custom.mcp_registry import mcp_custom_tool
+
+@mcp_custom_tool(name='utility_tools.bulk_send_docs', description='Sends all files in Docs to Telegram.')
+def bulk_send_docs(user_id: str = '5662168844'):
+    token = getattr(config, 'TELEGRAM_TOKEN', None)
+    path = 'D:\\Bane_NLP\\Docs'
+    if not os.path.exists(path):
+        return f'❌ Path {path} not found.'
+    
+    files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    results = []
+    url = f'https://api.telegram.org/bot{token}/sendDocument'
+    
+    for filename in files:
+        full_path = os.path.join(path, filename)
+        try:
+            with open(full_path, 'rb') as f:
+                res = requests.post(url, data={'chat_id': user_id}, files={'document': f})
+                if res.json().get('ok'):
+                    results.append(f'✅ Sent: {filename}')
+                else:
+                    results.append(f'❌ Failed {filename}: {res.json().get("description")}')
+        except Exception as e:
+            results.append(f'⚠️ Error {filename}: {str(e)}')
+            
+    return '\n'.join(results)

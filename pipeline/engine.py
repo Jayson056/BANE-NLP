@@ -247,7 +247,7 @@ class PipelineEngine:
                                 
                                 # V2 Phase 2: Schema Validation
                                 from pipeline.tool_schema import validate_tool_call, sanitize_tool_call
-                                from mcp.mcp_registry import registry
+                                from mcp_custom.mcp_registry import registry
                                 
                                 is_valid, reason = validate_tool_call(data, set(registry.tools.keys()))
                                 if is_valid:
@@ -259,8 +259,16 @@ class PipelineEngine:
                                     consecutive_schema_failures += 1
                                     log_event("SCHEMA", f"Tool call validation failed: {reason}")
                                     if ctx.on_partial: await ctx.on_partial({"status": f"[L3] ✗ Schema Validation Failed: {reason}"})
-                                    ctx.payload["payload"]["message"] = f"[SCHEMA VALIDATION FAILED]\nYour tool call format was invalid:\n{reason}\nPlease output a correctly formatted JSON block."
-                                    # By continuing, we skip execution and immediately loop back to request a fix
+                                    
+                                    # Construct feedback for schema failure
+                                    schema_error_msg = f"[SCHEMA VALIDATION FAILED]\nYour tool call was invalid: {reason}\nPlease fix the tool name or format and try again."
+                                    
+                                    # We skip further extraction and jump to feedback construction
+                                    # By setting found_tools to empty but consecutive_schema_failures > 0,
+                                    # we trigger the retry logic below.
+                                    found_tools = [] 
+                                    batch_results = [f"--- [SCHEMA ERROR] ---\n{schema_error_msg}"]
+                                    combined_is_error = True
                                     break
                         except:
                             # Try the repair fallback if direct parse failed
@@ -268,7 +276,7 @@ class PipelineEngine:
                             if repaired:
                                 # V2 Phase 2: Validate repaired data too
                                 from pipeline.tool_schema import validate_tool_call, sanitize_tool_call
-                                from mcp.mcp_registry import registry
+                                from mcp_custom.mcp_registry import registry
                                 is_valid, reason = validate_tool_call(repaired, set(registry.tools.keys()))
                                 if is_valid:
                                     found_tools.append(sanitize_tool_call(repaired))
@@ -279,7 +287,7 @@ class PipelineEngine:
                      repaired = self._repair_tool_json(text_clean)
                      if repaired:
                          from pipeline.tool_schema import validate_tool_call, sanitize_tool_call
-                         from mcp.mcp_registry import registry
+                         from mcp_custom.mcp_registry import registry
                          is_valid, reason = validate_tool_call(repaired, set(registry.tools.keys()))
                          if is_valid:
                              found_tools.append(sanitize_tool_call(repaired))
@@ -291,52 +299,60 @@ class PipelineEngine:
                     break
 
                 # 3. Stop if no tools found (Task Complete)
-                if not found_tools:
+                # UNLESS we just had a schema failure, in which case we must loop back to fix it
+                if not found_tools and consecutive_schema_failures == 0:
                     log_event("ANALYZE", f"Task Complete after {turns} iterations ({total_errors} errors encountered).")
                     break 
                 
-                # 4. Sequential BATCH EXECUTION
-                batch_results = []
-                combined_is_error = False
-                processed_count = 0
-                
-                from mcp.mcp_registry import registry
-                
-                for idx, tool_data in enumerate(found_tools):
-                    tool_name = tool_data.get("call_tool")
-                    args = tool_data.get("args", {})
+                # 4. Sequential BATCH EXECUTION (only if we have tools and no immediate schema error)
+                if found_tools:
+                    batch_results = []
+                    combined_is_error = False
+                    processed_count = 0
                     
-                    if not tool_name or tool_name in ("tool_name", "tool_name_here", "example_tool", ""):
-                        continue
+                    from mcp_custom.mcp_registry import registry
+                    
+                    for idx, tool_data in enumerate(found_tools):
+                        tool_name = tool_data.get("call_tool")
+                        args = tool_data.get("args", {})
                         
-                    # Fuzzy resolution
-                    actual_tool_name = self._fuzzy_resolve_tool(tool_name, registry.tools) or tool_name
-                    
-                    log_event("ANALYZE", f"Batch Execution [{idx+1}/{len(found_tools)}]: {actual_tool_name}")
-                    if ctx.on_partial: await ctx.on_partial({"status": f"[L3] ⚙ TOOL [{idx+1}/{len(found_tools)}]: {actual_tool_name}..."})
-                    
-                    try:
-                        tool_result = await asyncio.wait_for(registry.execute_tool(actual_tool_name, args), timeout=60)
-                    except asyncio.TimeoutError:
-                        tool_result = f"⚠️ Tool '{actual_tool_name}' timed out (60s)."
-                    except Exception as e:
-                        import traceback
-                        full_trace = traceback.format_exc()
-                        tool_result = f"❌ Execution error: {e}\n\nTraceback:\n{full_trace}"
+                        if not tool_name or tool_name in ("tool_name", "tool_name_here", "example_tool", ""):
+                            continue
+                            
+                        # Fuzzy resolution
+                        actual_tool_name = self._fuzzy_resolve_tool(tool_name, registry.tools) or tool_name
+                        
+                        log_event("ANALYZE", f"Batch Execution [{idx+1}/{len(found_tools)}]: {actual_tool_name}")
+                        if ctx.on_partial: await ctx.on_partial({"status": f"[L3] ⚙ TOOL [{idx+1}/{len(found_tools)}]: {actual_tool_name}..."})
+                        
+                        try:
+                            tool_result = await asyncio.wait_for(registry.execute_tool(actual_tool_name, args), timeout=60)
+                        except asyncio.TimeoutError:
+                            tool_result = f"⚠️ Tool '{actual_tool_name}' timed out (60s)."
+                        except Exception as e:
+                            import traceback
+                            full_trace = traceback.format_exc()
+                            tool_result = f"❌ Execution error: {e}\n\nTraceback:\n{full_trace}"
 
-                    is_error = self._is_tool_error(tool_result)
-                    if is_error:
-                        combined_is_error = True
-                        consecutive_errors += 1
-                        total_errors += 1
-                        last_error_tool = actual_tool_name
-                        if ctx.on_partial: await ctx.on_partial({"status": f"[L3] ✗ TOOL FAILED: {actual_tool_name} — {str(tool_result)[:80]}"})
-                    else:
-                        consecutive_errors = 0
-                        if ctx.on_partial: await ctx.on_partial({"status": f"[L3] ✓ TOOL OK: {actual_tool_name}"})
-                        
-                    batch_results.append(f"--- [BATCH ITEM {idx+1}: {actual_tool_name}] ---\n{tool_result}")
-                    processed_count += 1
+                        is_error = self._is_tool_error(tool_result)
+                        if is_error:
+                            combined_is_error = True
+                            consecutive_errors += 1
+                            total_errors += 1
+                            last_error_tool = actual_tool_name
+                            if ctx.on_partial: await ctx.on_partial({"status": f"[L3] ✗ TOOL FAILED: {actual_tool_name} — {str(tool_result)[:80]}"})
+                        else:
+                            consecutive_errors = 0
+                            if ctx.on_partial: await ctx.on_partial({"status": f"[L3] ✓ TOOL OK: {actual_tool_name}"})
+                            
+                        batch_results.append(f"--- [BATCH ITEM {idx+1}: {actual_tool_name}] ---\n{tool_result}")
+                        processed_count += 1
+                else:
+                    # We are here because consecutive_schema_failures > 0
+                    # batch_results and combined_is_error are already set in the extraction loop
+                    processed_count = 0
+                    actual_tool_name = "hallucinated_tool" # Fallback for feedback builder
+                    args = {} # Fallback for feedback builder
 
                 # 5. Compile Feedback
                 final_tool_result = "\n\n".join(batch_results)
@@ -344,8 +360,8 @@ class PipelineEngine:
                 # Build the feedback block (using the last tool's metadata for the directive logic)
                 status_block, directive = await self._build_adaptive_feedback(
                     is_error=combined_is_error,
-                    tool_name=found_tools[-1].get("call_tool"),
-                    args=found_tools[-1].get("args", {}),
+                    tool_name=actual_tool_name,
+                    args=args if 'args' in locals() else {},
                     tool_result=final_tool_result,
                     turns=turns,
                     consecutive_errors=consecutive_errors,
@@ -797,9 +813,10 @@ class PipelineEngine:
         """Attempt to fuzzy-match a hallucinated tool name to an actual registered tool.
         
         Strategy:
-          1. Normalize both names by stripping underscores, dots, hyphens, and lowering.
-          2. If exact normalized match → return the real tool name.
-          3. If partial containment match (e.g. 'sendtelegrammessage' in 'communication_tools.send_telegram_message') → return.
+          1. Check common aliases.
+          2. Normalize both names by stripping underscores, dots, hyphens, and lowering.
+          3. If exact normalized match → return the real tool name.
+          4. If partial containment match (e.g. 'sendtelegrammessage' in 'communication_tools.send_telegram_message') → return.
           
         Returns:
             The actual registered tool name, or None if no match found.
@@ -807,22 +824,38 @@ class PipelineEngine:
         def normalize(name: str) -> str:
             return name.replace("_", "").replace(".", "").replace("-", "").lower()
         
+        name_lower = hallucinated_name.lower()
+        
+        # Common hallucination mappings
+        ALIASES = {
+            "list_directory": "file_tools.list_dir",
+            "list_files": "file_tools.list_dir",
+            "read_file": "file_tools.read_file",
+            "write_file": "file_tools.write_file",
+            "create_file": "file_tools.write_file",
+            "run_command": "command_tools.run_command",
+            "execute_command": "command_tools.run_command",
+            "shell": "command_tools.run_command",
+            "screenshot": "desktop_tools.screenshot",
+        }
+        if name_lower in ALIASES and ALIASES[name_lower] in tool_registry:
+            return ALIASES[name_lower]
+        
         target_norm = normalize(hallucinated_name)
         
+        # Exact normalized match
         for real_name in tool_registry:
             if normalize(real_name) == target_norm:
                 return real_name
         
         # Partial match: check if the hallucinated name's method part matches
-        # e.g., "communicationtools.sendtelegrammessage" → method = "sendtelegrammessage"
         method_part = target_norm.split(".")[-1] if "." in hallucinated_name else target_norm
         for real_name in tool_registry:
             real_norm = normalize(real_name)
-            real_method = real_norm.split(".")[-1] if "." in real_name else real_norm
-            if method_part == real_method:
-                return real_name
-            # Also check if hallucianted method is contained in real method or vice versa
-            if len(method_part) > 5 and (method_part in real_method or real_method in method_part):
+            real_parts = real_name.split('.')
+            real_method = normalize(real_parts[-1])
+            
+            if method_part == real_method or method_part in real_method or real_method in method_part:
                 return real_name
         
         return None

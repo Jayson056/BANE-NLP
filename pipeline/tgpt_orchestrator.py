@@ -141,7 +141,8 @@ def _build_orchestration_prompt(ctx: PipelineContext) -> str:
         f"5. When the plan includes TTS or screenshots, ALWAYS include the exact save path from DESIGNATED SAVE PATHS.\n"
         f"6. If HAS FILES is Yes, explicitly instruct the AI to directly analyze the attached images/files natively from its context window. Do NOT instruct the AI to use MCP file tools (like list_dir or read_file) to read the user's attachments.\n"
         f"7. WORKSPACE: When user mentions 'my workspace', 'Project_Workspace', or asks to list/create files without a path, ALWAYS use D:\\Project_Workspace — NEVER D:\\Bane_NLP.\n"
-        f"8. Output ONLY the final revised prompt. No preamble. No commentary."
+        f"8. Output ONLY the final revised prompt. No preamble. No commentary.\n"
+        f"9. SURGICAL PRIORITY: For bug fixes, port changes, or single-line code updates, ALWAYS prioritize 'system.surgical_edit' in the workflow to avoid file corruption."
     )
 
 

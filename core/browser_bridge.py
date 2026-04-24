@@ -281,15 +281,6 @@ class BrowserBridge:
             return None
 
         target  = payload.get("target", "").lower()
-        
-        # ── Target Normalization ───────────────────────────────────────────
-        # Normalize sub-targets (like gemini_general/gemini_custom) back to 
-        # the base target name (gemini) so the dispatcher can find the 
-        # connected Chrome extension tab.
-        if target.startswith("gemini_"):
-            target = "gemini"
-            payload["target"] = target
-            
         profile = payload.get("chrome_profile", "").strip()
         msg_id  = str(payload.get("id", ""))
         json_str = json.dumps(payload)
@@ -299,6 +290,18 @@ class BrowserBridge:
             c for c, meta in self._client_meta.items()
             if meta.get("target") == target
         ]
+
+        # ── Target Normalization (Fallback) ────────────────────────────────
+        # If no client is connected for the specific sub-target (e.g. gemini_general),
+        # normalize back to the base target (gemini) so the main bridge can handle it.
+        if not target_clients and target.startswith("gemini_"):
+            target = "gemini"
+            payload["target"] = target
+            json_str = json.dumps(payload)
+            target_clients = [
+                c for c, meta in self._client_meta.items()
+                if meta.get("target") == target
+            ]
 
         if not target_clients:
             system_logger.warning(
@@ -403,13 +406,21 @@ class BrowserBridge:
                             If empty, checks across all targets.
         """
         target = target.lower()
-        if target.startswith("gemini_"):
-            target = "gemini"
-
+        
+        # Check specific target first
         for meta in self._client_meta.values():
             if meta.get("chrome_profile") == chrome_profile:
-                if not target or meta.get("target") == target:
+                if meta.get("target") == target:
                     return True
+        
+        # Fallback for gemini sub-targets
+        if target.startswith("gemini_"):
+            target = "gemini"
+            for meta in self._client_meta.values():
+                if meta.get("chrome_profile") == chrome_profile:
+                    if meta.get("target") == target:
+                        return True
+        
         return False
 
     def get_active_profiles(self) -> Dict[str, str]:

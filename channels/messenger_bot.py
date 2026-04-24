@@ -410,7 +410,8 @@ class MessengerBot:
                 file_paths=file_paths,
                 on_partial=on_partial,
                 generate_voice=self.router.get_voice_mode(sender_id),
-                voice_name=self.router.get_voice(sender_id)
+                voice_name=self.router.get_voice(sender_id),
+                chrome_profile=self.router.get_profile(sender_id) or ""
             )
             for f in file_paths:
                 if os.path.exists(f): os.remove(f)
@@ -726,7 +727,7 @@ class MessengerBot:
                 res_bundle = await self.core.process_request(
                     user_id="PORTFOLIO",
                     message=query,
-                    target="gemini",
+                    target="gemini_portfolio",
                     source="Portfolio",
                     on_partial=on_partial,
                     generate_voice=False

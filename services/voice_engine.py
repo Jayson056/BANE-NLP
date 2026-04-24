@@ -123,9 +123,15 @@ class VoiceEngine:
                 or os.path.join(os.path.dirname(__file__), 'ffmpeg.exe')
             )
             
-            # Build FFmpeg command args
+            # Convert MP3 to OPUS-encoded OGG for Telegram Voice Note compatibility
+            # Optimized for speed and small file size (faster upload)
             ffmpeg_args = [
-                ffmpeg_path, '-y', '-i', temp_mp3, '-c:a', 'libopus'
+                ffmpeg_path, '-y', '-i', temp_mp3,
+                '-c:a', 'libopus',
+                '-b:a', '24k',        # Lower bitrate (24k is plenty for clear speech)
+                '-ac', '1',           # Mono (saves space)
+                '-application', 'voip', # Optimized for human speech
+                '-threads', '0'       # Use all available cores
             ]
             
             if active_vibration:

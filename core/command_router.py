@@ -200,16 +200,24 @@ class CommandRouter:
                             if p_name not in active_profiles:
                                 active_profiles.append(p_name)
 
-        connected_engines = self.core.bridge.get_active_connections()
+        connected_profiles = self.core.bridge.get_active_profiles()
         lines = ["🌐 <b>Active Chrome Instances</b>", "────────────────────"]
 
-        if not active_profiles:
+        if not active_profiles and not connected_profiles:
             lines.append("🚫 No running Chrome profiles detected.")
         else:
-            for p in active_profiles:
+            # Combine detected processes and connected web sockets
+            all_profiles = set(active_profiles) | set(connected_profiles.keys())
+            for p in all_profiles:
                 label = CHROME_PROFILES.get(p, {}).get("label", f"Other ({p})")
                 color = CHROME_PROFILES.get(p, {}).get("color", "⚪")
-                status = "🟢 Connected" if p in connected_engines else "🟡 Standby"
+                
+                if p in connected_profiles:
+                    target = connected_profiles[p]
+                    status = f"🟢 Connected ({target})"
+                else:
+                    status = "🟡 Standby (No Extension)"
+                    
                 lines.append(f"{color} <b>{label}</b>: {status}")
 
         lines.append("────────────────────")
@@ -247,7 +255,10 @@ class CommandRouter:
             platform="telegram"
         )
         
-        worker = EphemeralWorker(self.core.engine, timeout=60.0)
+        # In V2, we instantiate the engine and worker with the necessary core components
+        from pipeline.engine import PipelineEngine
+        engine = PipelineEngine(self.core.bridge, self.core.response_handler, self.core.voice_engine)
+        worker = EphemeralWorker(engine, timeout=60.0)
         
         # Run in background
         async def run_and_report():
@@ -489,6 +500,7 @@ class CommandRouter:
                     source=adapter.platform_name.capitalize(),
                     generate_voice=self.get_voice_mode(user_id),
                     voice_name=self.get_voice(user_id),
+                    chrome_profile=self.get_profile(user_id) or "",
                     on_partial=on_partial
                 )
                 # DELIVER: Ensure the final result is sent to the user
@@ -566,6 +578,7 @@ class CommandRouter:
             "/gemini": lambda: self.cmd_gemini(adapter, recipient_id),
             "/chatgpt": lambda: self.cmd_chatgpt(adapter, recipient_id),
             "/notebooklm": lambda: self.cmd_notebooklm(adapter, recipient_id),
+            "/delegate": lambda: self.cmd_delegate(adapter, recipient_id),
         }
 
         handler = handlers.get(c)

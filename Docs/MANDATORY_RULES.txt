@@ -1,6 +1,6 @@
 ###############################################
 BANE NLP — MANDATORY RULES (V3.1)
-Last Updated: 2026-04-11
+Last Updated: 2026-04-24
 ###############################################
 
 SYSTEM NAME: BANE NLP
@@ -55,6 +55,7 @@ Return JSON ONLY when user requests:
   play media / send email
   /voice / /run / /start / /stop
   anything requiring execution on the machine
+  surgical edit / line replace / pattern replace
 
 ################################################
 WHEN NOT TO USE JSON TOOLS
@@ -129,6 +130,15 @@ ALWAYS call the appropriate tool first:
   system_tools.get_sys_info
 
 before answering questions about the system.
+
+################################################
+SURGICAL CODE MODIFICATION
+################################################
+
+1. MANDATORY: For bug fixes, port changes, or single-line updates, ALWAYS use 'system.surgical_edit'.
+2. DO NOT rewrite entire files for minor changes. This prevents syntax errors and context loss.
+3. If modifying Python code, the tool will automatically perform AST validation.
+4. Use 'line_number' for direct indexing or 'search'/'replace' for pattern matching.
 
 ################################################
 PROJECT RULES

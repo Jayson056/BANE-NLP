@@ -34,7 +34,14 @@ def run(ctx: PipelineContext) -> PipelineContext:
     """
     raw = ctx.raw_message or ""
 
-    # ── Step 1: Detect inline target override: "@gemini explain X" ─────────
+    # ── Step 1: Detect inline target/profile overrides ────────────────────
+    # Profile override: @8, /p8, @Profile 8
+    profile_match = re.match(r"^[@/]?p?(rofile\s*)?([34568])\s+(.+)", raw, re.IGNORECASE | re.DOTALL)
+    if profile_match:
+        ctx.chrome_profile = f"Profile {profile_match.group(2)}"
+        raw = profile_match.group(3)
+        
+    # Target override: @gemini, @chatgpt
     inline_match = re.match(r"^@(gemini|notebooklm|chatgpt)\s+(.+)", raw, re.IGNORECASE | re.DOTALL)
     if inline_match:
         ctx.inline_target = inline_match.group(1).lower()

@@ -109,13 +109,14 @@ def validate_payload(payload: dict) -> tuple[bool, str]:
     if not isinstance(payload, dict):
         return False, "Payload is not a dict"
 
-    if payload.get("pipeline") != PIPELINE_NAME:
+    valid_pipelines = (PIPELINE_NAME, "BNP_PORTFOLIO")
+    if payload.get("pipeline") not in valid_pipelines:
         return False, f"Invalid pipeline identifier: {payload.get('pipeline')}"
 
     if "type" not in payload:
         return False, "Missing 'type' field"
 
-    if payload["type"] not in ("prompt", "response", "log", "status"):
+    if payload["type"] not in ("prompt", "response", "log", "status", "ping", "register_service_worker"):
         return False, f"Invalid type: {payload['type']}"
 
     inner = payload.get("payload")

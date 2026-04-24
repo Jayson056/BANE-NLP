@@ -14,3 +14,4 @@ requests
 psutil
 edge-tts
 python-dotenv
+mcp

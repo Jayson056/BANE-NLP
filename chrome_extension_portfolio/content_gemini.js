@@ -14,7 +14,7 @@
 (function () {
   "use strict";
 
-  const PIPELINE_NAME = "BNP";
+  const PIPELINE_NAME = "BNP_PORTFOLIO";
   // How often to check for completed responses
   const POLL_INTERVAL_MS = 50;
   const RESPONSE_TIMEOUT_MS = 290000; // slightly less than Python timeout (300s)
@@ -58,7 +58,7 @@
   // ─── Notify Background ──────────────────────────────────────
   chrome.runtime.sendMessage({
     type: "BNP_CONTENT_READY",
-    target: "gemini",
+    target: "gemini_portfolio",
   });
 
   console.log("[BNP Gemini] Content script loaded. Bootstrapping Interceptors...");
@@ -156,7 +156,7 @@
 
     const data = promptQueue.shift();
 
-    if (data.target !== "gemini") {
+    if (data.target !== "gemini_portfolio") {
       console.log("[BNP Gemini] Ignoring prompt for different target:", data.target);
       isProcessingPrompt = false;
       processNextPrompt();

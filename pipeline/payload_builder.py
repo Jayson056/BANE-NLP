@@ -38,8 +38,11 @@ def build_payload(
     if target is None:
         target = DEFAULT_TARGET
 
+    # Determine which pipeline identifier to use
+    pipeline = "BNP_PORTFOLIO" if target == "gemini_portfolio" else PIPELINE_NAME
+
     payload = {
-        "pipeline": PIPELINE_NAME,
+        "pipeline": pipeline,
         "id": str(uuid.uuid4()),
         "target": target,
         "source": source,
@@ -79,7 +82,7 @@ def parse_response(raw: str) -> dict | None:
     except (json.JSONDecodeError, TypeError):
         return None
 
-    if data.get("pipeline") != PIPELINE_NAME:
+    if data.get("pipeline") not in (PIPELINE_NAME, "BNP_PORTFOLIO"):
         return None
 
     return data

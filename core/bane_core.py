@@ -29,9 +29,9 @@ class BaneCore:
         self._partial_callbacks = {}
         self.telegram_bot = None  # Will be registered by TelegramBot
         
-        # FIFO Queue Strategy: Lock ensures only one request goes to the browser at a time
+        # V2: Per-profile locking. Allows concurrent requests on different profiles.
         import asyncio
-        self._browser_lock = asyncio.Lock()
+        self._browser_locks: Dict[str, asyncio.Lock] = {}
         self.cancel_tokens = {}
         
         log_event("CORE", "BaneCore initialized with Unified Response Pipeline & Queueing Strategy.")
@@ -96,11 +96,17 @@ class BaneCore:
         """
         from pipeline.engine import PipelineEngine
         
-        # Instantiate the engine pipeline (it handles its own locking internally)
+        # Instantiate the engine pipeline
         engine = PipelineEngine(self.bridge, self.response_handler, self.voice_engine)
         
-        # We share our existing lock with the engine to ensure cross-module sync
-        engine._browser_lock = self._browser_lock
+        # We share our existing locks with the engine to ensure cross-module sync
+        # Default to "Default" if no profile specified for locking purposes
+        lock_key = chrome_profile or "Default"
+        if lock_key not in self._browser_locks:
+            import asyncio
+            self._browser_locks[lock_key] = asyncio.Lock()
+            
+        engine._browser_lock = self._browser_locks[lock_key]
         engine.cancel_tokens = self.cancel_tokens
         self.cancel_tokens[user_id] = False # Reset token for this session
         

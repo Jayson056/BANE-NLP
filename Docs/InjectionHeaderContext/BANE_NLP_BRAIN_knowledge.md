@@ -11,7 +11,7 @@ OWNER: Jayson Combate
 
 #### 🛠 REGISTERED MCP TOOLS
 1. **surgical_edit**: 
-   - **Usage**: `surgical_edit(path, line_start, line_end, new_content)`
+   - **Usage**: `surgical_edit(path, search, replace, line_number=None, is_regex=False)`
    - **Constraint**: Always use AST-based precision. Avoid replacing entire files for single-line fixes.
 
 #### 📋 LLM USAGE GUIDELINES

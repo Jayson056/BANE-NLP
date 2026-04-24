@@ -98,12 +98,34 @@ def _fuzzy_match(name: str, candidates: Set[str], threshold: float = 0.6) -> Opt
     best_match = None
     name_lower = name.lower()
 
+    # Common hallucination mappings
+    ALIASES = {
+        "list_directory": "file_tools.list_dir",
+        "list_files": "file_tools.list_dir",
+        "read_file": "file_tools.read_file",
+        "write_file": "file_tools.write_file",
+        "create_file": "file_tools.write_file",
+        "run_command": "command_tools.run_command",
+        "execute_command": "command_tools.run_command",
+        "shell": "command_tools.run_command",
+        "screenshot": "desktop_tools.screenshot",
+    }
+    if name_lower in ALIASES and ALIASES[name_lower] in candidates:
+        return ALIASES[name_lower]
+
     for candidate in candidates:
         c_lower = candidate.lower()
-        # Simple substring check first
-        if name_lower in c_lower or c_lower in name_lower:
+        
+        # 1. Exact or partial namespaced match
+        if name_lower == c_lower: return candidate
+        
+        # 2. Part-based match (e.g. 'list_dir' matching 'file_tools.list_dir')
+        c_parts = c_lower.split('.')
+        func_name = c_parts[-1]
+        if name_lower == func_name or name_lower in func_name or func_name in name_lower:
             return candidate
-        # Jaccard similarity on character bigrams
+
+        # 3. Jaccard similarity on character bigrams
         name_bigrams = set(name_lower[i:i+2] for i in range(len(name_lower) - 1))
         cand_bigrams = set(c_lower[i:i+2] for i in range(len(c_lower) - 1))
         if not name_bigrams or not cand_bigrams:

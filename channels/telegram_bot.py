@@ -46,7 +46,7 @@ class TelegramChannelAdapter(ChannelAdapter):
 
     async def send_text(self, recipient_id: str, text: str, **kwargs) -> Optional[str]:
         pm = kwargs.get("parse_mode")
-        msg = await self.bot.bot.send_message(chat_id=recipient_id, text=text, parse_mode=pm)
+        msg = await self.bot.bot.send_message(chat_id=recipient_id, text=text, parse_mode=pm, read_timeout=120, write_timeout=120)
         return str(msg.message_id)
 
     async def send_buttons(self, recipient_id: str, text: str, buttons: List[Dict[str, str]], **kwargs) -> Optional[str]:
@@ -80,7 +80,7 @@ class TelegramChannelAdapter(ChannelAdapter):
 
     async def send_audio(self, recipient_id: str, file_path: str) -> None:
         with open(file_path, 'rb') as audio:
-            await self.bot.bot.send_voice(chat_id=recipient_id, voice=audio)
+            await self.bot.bot.send_voice(chat_id=recipient_id, voice=audio, read_timeout=120, write_timeout=120)
 
     async def send_video(self, recipient_id: str, video_data: str) -> None:
         with open(video_data, 'rb') as video:
@@ -135,19 +135,19 @@ class TelegramChannelAdapter(ChannelAdapter):
         
         # 3. Send final text response
         try:
-            await self.bot.bot.send_message(chat_id=recipient_id, text=final_html, parse_mode="HTML", reply_markup=reply_markup)
+            await self.bot.bot.send_message(chat_id=recipient_id, text=final_html, parse_mode="HTML", reply_markup=reply_markup, read_timeout=120, write_timeout=120)
         except Exception as e:
             log_error("TELEGRAM_DELIVER_TEXT", e)
             try:
                 # Fallback to plain text
-                await self.bot.bot.send_message(chat_id=recipient_id, text=txt, reply_markup=reply_markup)
+                await self.bot.bot.send_message(chat_id=recipient_id, text=txt, reply_markup=reply_markup, read_timeout=120, write_timeout=120)
             except: pass
         
         # 4. Send voice
         if audio and os.path.exists(audio):
             try:
                 with open(audio, 'rb') as v:
-                    await self.bot.bot.send_voice(chat_id=recipient_id, voice=v)
+                    await self.bot.bot.send_voice(chat_id=recipient_id, voice=v, read_timeout=120, write_timeout=120)
                 os.remove(audio)
             except Exception as e:
                 log_error("TELEGRAM_DELIVER_VOICE", e)
@@ -157,9 +157,9 @@ class TelegramChannelAdapter(ChannelAdapter):
             try:
                 if os.path.exists(img):
                     with open(img, 'rb') as p:
-                        await self.bot.bot.send_photo(chat_id=recipient_id, photo=p)
+                        await self.bot.bot.send_photo(chat_id=recipient_id, photo=p, read_timeout=120, write_timeout=120)
                 else:
-                    await self.bot.bot.send_photo(chat_id=recipient_id, photo=img) # URL
+                    await self.bot.bot.send_photo(chat_id=recipient_id, photo=img, read_timeout=120, write_timeout=120) # URL
             except Exception as e:
                 log_error("TELEGRAM_DELIVER_PHOTO", e)
 
@@ -287,10 +287,10 @@ class TelegramBot:
         app = (
             ApplicationBuilder()
             .token(TELEGRAM_TOKEN)
-            .connect_timeout(30.0)
-            .read_timeout(30.0)
-            .write_timeout(30.0)
-            .pool_timeout(30.0)
+            .connect_timeout(120.0)
+            .read_timeout(120.0)
+            .write_timeout(120.0)
+            .pool_timeout(120.0)
             .build()
         )
         self.app = app # Store for standalone HUD access
@@ -553,6 +553,7 @@ class TelegramBot:
                 file_paths=file_paths,
                 generate_voice=self.router.get_voice_mode(user_id),
                 voice_name=self.router.get_voice(user_id),
+                chrome_profile=self.router.get_profile(user_id) or "",
                 on_partial=on_partial
             )
 
