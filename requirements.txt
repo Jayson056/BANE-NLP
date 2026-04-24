@@ -13,3 +13,4 @@ pyttsx3
 requests
 psutil
 edge-tts
+python-dotenv

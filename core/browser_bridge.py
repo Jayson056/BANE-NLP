@@ -83,7 +83,7 @@ class BrowserBridge:
             await asyncio.sleep(5)
             stale = []
             for ws in list(self._clients):
-                if ws.closed:
+                if ws.state.name == "CLOSED":
                     stale.append(ws)
             for ws in stale:
                 self._clients.discard(ws)
