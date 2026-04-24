@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "surgical-edit": {
+      "command": "npx",
+      "args": ["@mcp/surgical-edit-provider"],
+      "env": { "AST_MODE": "true" },
+      "description": "Surgical line-by-line editing tool using AST for precise code modification."
+    }
+  }
+}

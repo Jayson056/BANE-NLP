@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "BNP — Bane Notebook Pipeline",
+  "version": "1.2.0",
+  "description": "Chrome extension bridge for BNP pipeline. Injects prompts into Gemini, NotebookLM, and ChatGPT.",
+  "permissions": [
+    "activeTab",
+    "alarms",
+    "scripting",
+    "downloads",
+    "storage",
+    "identity",
+    "tabs",
+    "debugger"
+  ],
+  "host_permissions": [
+    "https://gemini.google.com/*",
+    "https://notebooklm.google.com/*",
+    "https://chatgpt.com/*",
+    "https://lh3.googleusercontent.com/*",
+    "https://*.googleusercontent.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://gemini.google.com/*"
+      ],
+      "js": ["websocket_bridge.js", "content_gemini.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://notebooklm.google.com/*"
+      ],
+      "js": ["websocket_bridge.js", "content_notebooklm.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://chatgpt.com/*"
+      ],
+      "js": ["websocket_bridge.js", "content_chatgpt.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

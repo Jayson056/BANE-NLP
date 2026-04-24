@@ -1,0 +1,15 @@
+python-telegram-bot>=21.0
+websockets>=13.0
+asyncio
+aiohttp
+flask
+pydantic
+sqlalchemy
+beautifulsoup4
+pillow
+librosa
+numpy
+pyttsx3
+requests
+psutil
+edge-tts
