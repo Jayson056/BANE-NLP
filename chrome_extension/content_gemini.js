@@ -347,6 +347,13 @@
     } catch (err) {
       console.error("[BNP Gemini] Injection failed:", err);
       sendErrorResponse(currentRequestId, `Injection failed: ${err.message}`);
+    } finally {
+      // Guarantee the queue is never permanently locked, even on unexpected errors.
+      // sendResponse("finished") already resets this flag on success, but if
+      // watchForResponse or injectPrompt throw without calling sendResponse,
+      // this safety net prevents a permanent deadlock.
+      isProcessingPrompt = false;
+      setTimeout(processNextPrompt, 200);
     }
   }
 
@@ -458,16 +465,54 @@
     } else {
       inputEl.innerHTML = "";
     }
-
-    // ─── ROBUST DOM INJECTION ───
-    // We bypass ClipboardEvent ('paste') because Chrome suspends paste events when
-    // the tab/window is minimized or not in focus. execCommand forces direct DOM mutation.
-    document.execCommand("insertText", false, text);
     
-    // Final fallback: Direct property injection if execCommand was blocked
-    await delay(25);
-    let currentText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
-    if (currentText.length < Math.min(5, text.length)) {
+    // ─── ROBUST LINE-BY-LINE DOM INJECTION ───
+    // Modern rich-text editors (ProseMirror/Lexical) truncate bulk insertText at the first newline.
+    // We must inject the text line by line to guarantee formatting and full payload delivery.
+    const expectedLen = text.length;
+    let currentText = "";
+
+    // Strategy 1: Simulated Paste Event (Fastest, cleanest if supported)
+    const dt = new DataTransfer();
+    dt.setData("text/plain", text);
+    inputEl.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }));
+    await delay(50);
+    
+    currentText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
+
+    // Strategy 2: Line-by-Line execCommand Injection (Bulletproof Fallback)
+    if (currentText.length < expectedLen * 0.8) {
+      console.log("[BNP Gemini] Paste truncated/failed. Falling back to line-by-line execCommand injection...");
+      
+      // Clear whatever was partially injected
+      if (inputEl.tagName === "TEXTAREA" || inputEl.tagName === "INPUT") inputEl.value = "";
+      else inputEl.innerHTML = "";
+      await delay(25);
+
+      const lines = text.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        // Inject the text portion
+        if (lines[i].length > 0) {
+          document.execCommand("insertText", false, lines[i]);
+        }
+        
+        // Inject the line break
+        if (i < lines.length - 1) {
+          // Dispatch a Shift+Enter keydown to trigger framework line-break logic
+          inputEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true, bubbles: true, cancelable: true }));
+          // Fallback native commands if event is ignored
+          if (!document.execCommand("insertLineBreak")) {
+            document.execCommand("insertText", false, '\n');
+          }
+        }
+      }
+    }
+
+    // Strategy 3: Absolute Bruteforce Property Mutation
+    await delay(50);
+    currentText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
+    if (currentText.length < expectedLen * 0.8) {
+      console.log("[BNP Gemini] execCommand failed. Using bruteforce property mutation...");
       if (inputEl.tagName === "TEXTAREA" || inputEl.tagName === "INPUT") {
         inputEl.value = text;
       } else {
@@ -557,7 +602,7 @@
       }
     }
 
-    watchForResponse(previousResponseText, previousTurnCount);
+    await watchForResponse(previousResponseText, previousTurnCount);
   }
 
   // ─── Find Send Button ──────────────────────────────────────

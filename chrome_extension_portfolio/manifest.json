@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Bane-NLP Assistant — Portfolio Bridge",
+  "name": "BNP — Bane Notebook Pipeline",
   "version": "1.2.0",
-  "description": "Dedicated Gemini bridge for the Jayson Combate Web Portfolio Assistant.",
+  "description": "Chrome extension bridge for BNP pipeline. Injects prompts into Gemini, NotebookLM, and ChatGPT.",
   "permissions": [
     "activeTab",
     "alarms",
@@ -11,14 +11,18 @@
     "storage",
     "identity",
     "tabs",
-    "debugger"
+    "debugger",
+    "webNavigation"
   ],
   "host_permissions": [
     "https://gemini.google.com/*",
     "https://notebooklm.google.com/*",
     "https://chatgpt.com/*",
     "https://lh3.googleusercontent.com/*",
-    "https://*.googleusercontent.com/*"
+    "https://*.googleusercontent.com/*",
+    "https://jayson056.space/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
   ],
   "content_scripts": [
     {
@@ -26,7 +30,8 @@
         "https://gemini.google.com/*"
       ],
       "js": ["websocket_bridge.js", "content_gemini.js"],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": true
     },
     {
       "matches": [

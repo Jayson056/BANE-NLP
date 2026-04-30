@@ -38,8 +38,11 @@ def build_payload(
     if target is None:
         target = DEFAULT_TARGET
 
-    # Determine which pipeline identifier to use
-    pipeline = "BNP_PORTFOLIO" if target == "gemini_portfolio" else PIPELINE_NAME
+    # Always use the standard pipeline identifier.
+    # Routing is handled by the 'target' and 'chrome_profile' fields —
+    # using a different pipeline name causes background.js to silently
+    # reject the message (it only accepts PIPELINE_NAME === "BNP").
+    pipeline = PIPELINE_NAME
 
     payload = {
         "pipeline": pipeline,

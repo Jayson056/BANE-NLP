@@ -304,6 +304,10 @@ async function dispatchPromptToTab(payload) {
   }
 
   try {
+    // Normalize the target in the payload so content scripts accept it
+    // e.g. "gemini_portfolio" → "gemini", "gemini_custom" → "gemini"
+    const normalizedPayload = { ...payload, target: targetName };
+
     // chrome.scripting.executeScript injects into the tab even if it's minimized.
     // We pass the payload as a serialized arg — it runs in the ISOLATED world
     // where our content script already lives.
@@ -315,7 +319,7 @@ async function dispatchPromptToTab(payload) {
         const payload = JSON.parse(payloadStr);
         window.dispatchEvent(new CustomEvent("bnp-prompt", { detail: payload }));
       },
-      args: [JSON.stringify(payload)],
+      args: [JSON.stringify(normalizedPayload)],
     });
     console.log(`[BNP BG] Prompt injected into tab [${targetTabId}] via executeScript`);
   } catch (e) {
@@ -339,7 +343,7 @@ async function dispatchPromptToTab(payload) {
               const payload = JSON.parse(payloadStr);
               window.dispatchEvent(new CustomEvent("bnp-prompt", { detail: payload }));
             },
-            args: [JSON.stringify(payload)],
+            args: [JSON.stringify(normalizedPayload)],
           });
           console.log(`[BNP BG] Retry injection succeeded for tab [${targetTabId}]`);
         }

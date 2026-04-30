@@ -249,11 +249,9 @@
     }
     await delay(50);
 
-    // ─── ROBUST REACT DOM INJECTION ───
-    // ChatGPT uses a controlled React <textarea>. direct value assignment or execCommand
-    // often fails to update React's internal state, leaving the send button disabled.
-    // We must bypass React's prototype override and use the native setter.
-    
+    // ─── ROBUST 3-TIER DOM INJECTION ───
+    const expectedLen = text.length;
+
     const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set ||
                                    Object.getOwnPropertyDescriptor(window.HTMLDivElement.prototype, 'innerText')?.set;
     
@@ -266,19 +264,36 @@
       ev.simulated = true;
       inputEl.dispatchEvent(ev);
     } else {
-      // Fallback for non-React/contenteditable
-      logMsg("Fallback to execCommand injection...");
-      document.execCommand("insertText", false, text);
-      inputEl.dispatchEvent(new Event("input", { bubbles: true, cancelable: true }));
+      // Fallback for non-React/contenteditable (ProseMirror)
+      logMsg("Using ClipboardEvent paste for ProseMirror injection...");
+      const dt = new DataTransfer();
+      dt.setData('text/plain', text);
+      const pasteEvent = new ClipboardEvent('paste', {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true
+      });
+      inputEl.dispatchEvent(pasteEvent);
       
       await delay(100);
       let currentText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
-      if (currentText.length < Math.min(5, text.length)) {
+      
+      // 2. Fallback: Direct property mutation if paste failed or was truncated
+      if (currentText.length < expectedLen * 0.8) {
+        logMsg("Paste weak/truncated, attempting direct property fallback...");
         if (inputEl.tagName === "TEXTAREA" || inputEl.tagName === "INPUT") {
           inputEl.value = text;
         } else {
           inputEl.innerText = text;
         }
+        inputEl.dispatchEvent(new Event("input", { bubbles: true, cancelable: true }));
+        await delay(25);
+        currentText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
+      }
+
+      // 3. Final Fallback: execCommand (can sometimes truncate at newlines, so we do it last)
+      if (currentText.length < expectedLen * 0.8) {
+        document.execCommand("insertText", false, text);
         inputEl.dispatchEvent(new Event("input", { bubbles: true, cancelable: true }));
       }
     }
@@ -287,13 +302,14 @@
     inputEl.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
     inputEl.dispatchEvent(new KeyboardEvent("keyup", { key: " ", bubbles: true }));
 
-    // Final verification loop
-    for (let i = 0; i < 15; i++) {
+    // Final verification loop (fast)
+    let currentText = "";
+    for (let i = 0; i < 5; i++) {
       currentText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
-      if (currentText.length > text.length * 0.8) break; 
-      await delay(100);
+      if (currentText.length > text.length * 0.5) break; 
+      await delay(50);
     }
-    await delay(200);
+    await delay(50);
 
     // Snapshot current state BEFORE sending
     const previousTurnCount = document.querySelectorAll('[data-message-author-role="assistant"], [data-testid^="conversation-turn-"]').length;
@@ -301,18 +317,17 @@
     const previousBodyLength = document.body.innerText.length;
     logMsg("Prompt injected. Looking for send button...");
 
-    // Find and wait for the send button to become active (critical during file uploads!)
+    // Find and wait for the send button to become active
     let sendBtn = await findSendButton(inputEl);
-    logMsg("Waiting for UI to be ready to send (checking file upload completion)...");
 
-    for (let u = 0; u < 40; u++) {
+    for (let u = 0; u < 10; u++) {
       const isUploading = document.querySelector('progress, circle, [class*="uploading"], [class*="Upload"], [aria-valuenow]');
       const isBtnReady = sendBtn && !sendBtn.disabled && !sendBtn.hasAttribute('disabled');
 
       if (isBtnReady && !isUploading) {
         break;
       }
-      await delay(500);
+      await delay(200);
       sendBtn = await findSendButton(inputEl); // Refresh reference
     }
 
@@ -332,9 +347,7 @@
     }
 
     // Verify text was sent (box should be empty now)
-    // SPEED: Increased delay to 3000ms to allow slow UI frameworks (ProseMirror/React) 
-    // to clear the box for large BANE headers.
-    await delay(3000); 
+    await delay(800); 
     
     const checkText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
     const currentTurnCount = document.querySelectorAll('[data-message-author-role="assistant"], [data-testid^="conversation-turn-"]').length;
@@ -426,8 +439,8 @@
       console.log(`[BNP ChatGPT] Engaging MutationObserver for DOM Idle detection (${previousTurnCount} prior turns, ${previousBodyLength} prior chars)...`);
       const startTime = Date.now();
       const MAX_TIMEOUT = 290000; // 290s
-      const IDLE_THRESHOLD = 3500; // 3.5s DOM silence (increased from 1.5s)
-      const MIN_WAIT_MS = 4000;    // Never resolve before 4s
+      const IDLE_THRESHOLD = 1500; // 1.5s DOM silence = done
+      const MIN_WAIT_MS = 1500;    // Never resolve before 1.5s
       const BODY_GROWTH_THRESHOLD = 30;
 
       let idleTimer = null;

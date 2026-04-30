@@ -2,9 +2,44 @@
   "mcpServers": {
     "surgical-edit": {
       "command": "npx",
-      "args": ["@mcp/surgical-edit-provider"],
-      "env": { "AST_MODE": "true" },
+      "args": [
+        "@mcp/surgical-edit-provider"
+      ],
+      "env": {
+        "AST_MODE": "true"
+      },
       "description": "Surgical line-by-line editing tool using AST for precise code modification."
+    },
+    "notion": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-notion"
+      ],
+      "env": {
+        "NOTION_API_KEY": "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"
+      }
+    },
+    "google-calendar": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-google-calendar"
+      ],
+      "env": {
+        "GOOGLE_API_KEY": "YOUR_API_KEY_HERE"
+      }
+    },
+    "trello": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-trello"
+      ],
+      "env": {
+        "TRELLO_API_KEY": "YOUR_TRELLO_KEY",
+        "TRELLO_TOKEN": "YOUR_TRELLO_TOKEN"
+      }
     }
   }
 }

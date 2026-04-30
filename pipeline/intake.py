@@ -49,7 +49,7 @@ def run(ctx: PipelineContext) -> PipelineContext:
 
     # ── Step 2: Strip leaked/retried BANE headers ─────────────────────────
     clean_raw = raw
-    header_pattern = r'\[(KNOWLEDGE BASE|MANDATORY RULES|AI_SKILLS_DRIVE)\][\s\S]*?\[USER_ID: \d+\]\s*USER:\s*'
+    header_pattern = r'\[(KNOWLEDGE BASE|MANDATORY RULES|AI_SKILLS_DRIVE|SYSTEM OVERRIDE ACTIVE|MESSAGE SOURCE|BANE NLP)\][\s\S]*?USER:\s*'
 
     if re.search(header_pattern, raw, flags=re.IGNORECASE):
         clean_raw = re.sub(header_pattern, '', raw, flags=re.IGNORECASE).strip()

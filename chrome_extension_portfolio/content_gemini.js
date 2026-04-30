@@ -14,7 +14,7 @@
 (function () {
   "use strict";
 
-  const PIPELINE_NAME = "BNP_PORTFOLIO";
+  const PIPELINE_NAME = "BNP";
   // How often to check for completed responses
   const POLL_INTERVAL_MS = 50;
   const RESPONSE_TIMEOUT_MS = 290000; // slightly less than Python timeout (300s)
@@ -58,7 +58,7 @@
   // ─── Notify Background ──────────────────────────────────────
   chrome.runtime.sendMessage({
     type: "BNP_CONTENT_READY",
-    target: "gemini_portfolio",
+    target: "gemini",
   });
 
   console.log("[BNP Gemini] Content script loaded. Bootstrapping Interceptors...");
@@ -139,7 +139,6 @@
     const action = event.detail?.action;
     if (action === "new_conversation") {
       console.log("[BNP Gemini] Signal: Starting new conversation...");
-      // Redirecting to root is the cleanest way to clear context for a new chat
       window.location.href = "https://gemini.google.com/";
     } else if (action === "navigate") {
       const url = event.detail?.url;
@@ -155,65 +154,45 @@
     isProcessingPrompt = true;
 
     const data = promptQueue.shift();
-
-    if (data.target !== "gemini_portfolio") {
-      console.log("[BNP Gemini] Ignoring prompt for different target:", data.target);
-      isProcessingPrompt = false;
-      processNextPrompt();
-      return;
-    }
-
-    const message = data.payload?.message;
-    if (!message) {
-      console.error("[BNP Gemini] No message in payload");
-      isProcessingPrompt = false;
-      processNextPrompt();
-      return;
-    }
-
     currentRequestId = data.id;
-    console.log(`[BNP Gemini] Processing prompt (${currentRequestId}):`, message.substring(0, 80));
-
-    // --- PRE-SEED IMAGE TRACKER ---
-    // If we just refreshed or started a new request, we MUST ignore all images 
-    // that already exist on the screen to prevent hallucinating old images!
-    // NOTE: We use canvas-based content fingerprinting instead of URL matching
-    // because Gemini regenerates blob: URLs on every re-render, making URL
-    // tracking useless for deduplication.
-    const existingImages = document.querySelectorAll('img');
-    let preSeedCount = 0;
-    existingImages.forEach(img => {
-      if (img.src) {
-        const fp = getImageFingerprint(img);
-        if (fp) {
-          sentImageFingerprints.add(fp);
-          preSeedCount++;
-        }
-      }
-    });
-    if (preSeedCount > 0) logMsg(`Pre-seeded image tracker with ${preSeedCount} existing images to prevent leakages.`);
 
     try {
-      // --- MULTI-FILE INJECTION ---
+      if (data.target !== "gemini") {
+        console.log("[BNP Gemini] Ignoring prompt for different target:", data.target);
+        return;
+      }
+
+      const message = data.payload?.message;
+      if (!message) {
+        console.error("[BNP Gemini] No message in payload");
+        return;
+      }
+
+      console.log(`[BNP Gemini] Processing prompt (${currentRequestId}):`, message.substring(0, 80));
+
+      const existingImages = document.querySelectorAll('img');
+      let preSeedCount = 0;
+      existingImages.forEach(img => {
+        if (img.src) {
+          const fp = getImageFingerprint(img);
+          if (fp) {
+            sentImageFingerprints.add(fp);
+            preSeedCount++;
+          }
+        }
+      });
+      if (preSeedCount > 0) logMsg(`Pre-seeded image tracker with ${preSeedCount} existing images to prevent leakages.`);
+
       const files = data.payload?.files || (data.payload?.file ? [data.payload.file] : []);
 
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // SPEED-OPTIMIZED DELAY CONSTANTS (Content-Type Aware)
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      const DELAY_TEXT_ONLY_MS = 2000;   // Normal text: 3s
-      const DELAY_IMAGE_ATTACH_MS = 25000;  // Image attachments: 30s max
-      const DELAY_OGG_VOICE_MS = 38000;  // OGG voice messages: 43s max
-      const DELAY_GENERIC_MEDIA_MS = 25000;  // Other media fallback: 30s max
+      const DELAY_TEXT_ONLY_MS = 2000;
+      const DELAY_IMAGE_ATTACH_MS = 25000;
+      const DELAY_OGG_VOICE_MS = 38000;
+      const DELAY_GENERIC_MEDIA_MS = 25000;
 
-      // Chip selector for the INPUT area only (not the chat history)
       const CHIP_SELECTOR = 'file-attachment-chip, gallery-item, mat-chip, .file-chip, .attachment-item, [aria-label*="Attachment"], .uploaded-file';
+      const countInputChips = () => document.querySelectorAll(CHIP_SELECTOR).length;
 
-      // Helper: count current file chips in the input area
-      const countInputChips = () => {
-        return document.querySelectorAll(CHIP_SELECTOR).length;
-      };
-
-      // Determine the MAX wait ceiling based on file MIME types
       let contentTypeMaxWait = DELAY_TEXT_ONLY_MS;
       if (files.length > 0) {
         for (const file of files) {
@@ -226,27 +205,17 @@
           } else if (mime.startsWith("image/")) {
             contentTypeMaxWait = Math.max(contentTypeMaxWait, DELAY_IMAGE_ATTACH_MS);
           } else {
-            // Documents, PDFs, etc.
             contentTypeMaxWait = Math.max(contentTypeMaxWait, DELAY_IMAGE_ATTACH_MS);
           }
         }
-        logMsg(`[SPEED] Content-aware max wait ceiling: ${contentTypeMaxWait / 1000}s for ${files.length} file(s)`);
-      } else {
-        logMsg(`[SPEED] Text-only message. Injecting fast (${DELAY_TEXT_ONLY_MS / 1000}s ceiling).`);
       }
 
       for (const file of files) {
-        // Count chips BEFORE injection so we can detect NEW ones
         const chipCountBefore = countInputChips();
-
         logMsg(`Injecting file: ${file.name}... (${chipCountBefore} chips before)`);
         await injectFile(file);
 
-        // REALTIME SYNC: Wait for file to be FULLY uploaded before next action
-        logMsg(`Waiting for upload of ${file.name} to complete...`);
         let attachmentReady = false;
-
-        // Detect content type for THIS specific file
         const mime = (file.mime || "").toLowerCase();
         const fname = (file.name || "").toLowerCase();
         const isOggVoice = mime === "audio/ogg" || mime === "audio/opus" || fname.endsWith(".ogg") || fname.endsWith(".opus");
@@ -254,159 +223,128 @@
         const isImageFile = mime.startsWith("image/");
         const needsExtendedWait = isMediaFile || (file.data && file.data.length > 500000);
 
-        // SPEED: Use tight per-file max waits based on MIME
-        let fileMaxWaitMs;
-        if (isOggVoice) {
-          fileMaxWaitMs = DELAY_OGG_VOICE_MS;
-        } else if (isImageFile) {
-          fileMaxWaitMs = DELAY_IMAGE_ATTACH_MS;
-        } else if (isMediaFile) {
-          fileMaxWaitMs = DELAY_GENERIC_MEDIA_MS;
-        } else {
-          fileMaxWaitMs = DELAY_IMAGE_ATTACH_MS;
-        }
+        let fileMaxWaitMs = isOggVoice ? DELAY_OGG_VOICE_MS : (isImageFile ? DELAY_IMAGE_ATTACH_MS : (isMediaFile ? DELAY_GENERIC_MEDIA_MS : DELAY_IMAGE_ATTACH_MS));
+        const chipDetectAttempts = Math.floor(Math.min(fileMaxWaitMs, 15000) / 150);
+        const maxPollAttempts = Math.floor(fileMaxWaitMs / 50);
+        const requiredStableTicks = needsExtendedWait ? 6 : 3;
 
-        // Chip detection: fast polling, tight timeouts
-        const chipDetectDelay = 150;  // SPEED: was 300ms, now 150ms
-        const chipDetectAttempts = Math.floor(Math.min(fileMaxWaitMs, 15000) / chipDetectDelay);
-
-        // SPEED: Realtime sync polling (50ms)
-        const fastPollInterval = 50;  // SPEED: was 100ms, now 50ms
-        const maxPollAttempts = Math.floor(fileMaxWaitMs / fastPollInterval);
-        const requiredStableTicks = needsExtendedWait ? 6 : 3; // SPEED: was 8/4, now 6/3
-
-        logMsg(`[SPEED] File: ${file.name} | Type: ${isOggVoice ? 'OGG Voice' : isImageFile ? 'Image' : isMediaFile ? 'Media' : 'Document'} | Max wait: ${fileMaxWaitMs / 1000}s`);
-
-        // Wait for a NEW chip to appear (chip count must INCREASE)
         let fileChip = null;
         for (let i = 0; i < chipDetectAttempts; i++) {
           const currentCount = countInputChips();
           if (currentCount > chipCountBefore) {
             const allChips = document.querySelectorAll(CHIP_SELECTOR);
             fileChip = allChips[allChips.length - 1];
-            logMsg(`[Layer 0] DOM Insertion detected for ${file.name}`);
             break;
           }
-          await delay(chipDetectDelay);
-        }
-
-        if (!fileChip) {
-          const allChips = document.querySelectorAll(CHIP_SELECTOR);
-          if (allChips.length > 0) fileChip = allChips[allChips.length - 1];
+          await delay(150);
         }
 
         if (fileChip) {
-          let stableCount = 0;
-
+          let stableTicks = 0;
           for (let i = 0; i < maxPollAttempts; i++) {
-            await delay(fastPollInterval);
-
-            // --- LAYER 1: Visual Spinner Detection ---
-            const hasSpinner = fileChip.querySelector('mat-spinner, [role="progressbar"], svg circle[state="uploading"]') !== null;
-            const layer1Passed = !hasSpinner;
-
-            // --- LAYER 2: Semantic HTML Text Status ---
-            const chipHTML = fileChip.innerHTML.toLowerCase();
-            const textContent = fileChip.innerText.toLowerCase();
-            const isTextUploading = chipHTML.includes("upload") || chipHTML.includes("progress") || textContent.includes("loading");
-            const layer2Passed = !isTextUploading;
-
-            // --- LAYER 3: Error Detection ---
-            const hasError = fileChip.querySelector('.error, .failed, [aria-label*="error"]') !== null || textContent.includes("removed") || textContent.includes("failed") || textContent.includes("try again");
-
-            if (hasError) {
-              logMsg(`[FATAL] Upload error detected for ${file.name}!`);
-              break;
-            }
-
-            const layer3Passed = !hasError;
-
-            if (layer1Passed && layer2Passed && layer3Passed) {
-              stableCount++;
-            } else {
-              stableCount = 0;
-            }
-
-            if (stableCount >= requiredStableTicks) {
+            const html = fileChip.innerHTML || "";
+            const isUploading = html.includes('upload') || html.includes('progress') || html.includes('mat-progress-spinner') || fileChip.classList.contains('uploading');
+            
+            if (!isUploading) stableTicks++;
+            else stableTicks = 0;
+            
+            if (stableTicks >= requiredStableTicks) {
               attachmentReady = true;
-              logMsg(`[REALTIME-SYNC] Upload verified for ${file.name} (${((i + 1) * fastPollInterval) / 1000}s)`);
               break;
             }
-
-            // Progress logging every ~3s for long operations
-            if (needsExtendedWait && i > 0 && i % 38 === 0) {
-              logMsg(`... Verifying ${file.name} [${(i * fastPollInterval) / 1000}s | L1:${layer1Passed} L2:${layer2Passed} L3:${layer3Passed}]`);
-            }
+            await delay(50);
           }
+        } else {
+          logMsg(`Warning: Chip for ${file.name} not visually detected. Waiting max time...`);
+          await delay(Math.min(fileMaxWaitMs, 10000));
         }
-        if (!attachmentReady) logMsg(`[WARNING] Upload verification timeout for ${file.name}`);
       }
 
       await injectPrompt(message);
-
     } catch (err) {
-      console.error("[BNP Gemini] Injection failed:", err);
-      sendErrorResponse(currentRequestId, `Injection failed: ${err.message}`);
+      console.error("[BNP Gemini] Unhandled exception in processNextPrompt:", err);
+      sendErrorResponse(currentRequestId, `Internal Extension Error: ${err.message}`);
+    } finally {
+      isProcessingPrompt = false;
+      processNextPrompt();
     }
   }
 
-
-  // ─── File Injection ─────────────────────────────────────────
-  async function injectFile(fileData) {
-    const { data: base64Data, name, mime } = fileData;
-
-    // 1. Convert Base64 to Blob
-    const byteCharacters = atob(base64Data);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: mime });
-    const file = new File([blob], name, { type: mime });
-
-    // 2. Find and FORCE focus input area
-    let inputEl = await findInputArea();
+  async function injectFile(file) {
+    const inputEl = await findInputArea();
     if (!inputEl) return;
 
-    // Simplified focus + small text injection to 'awaken' the input
-    inputEl.focus();
-    inputEl.click?.();
-    await delay(25); // SPEED: was 200ms
+    try {
+      const byteCharacters = atob(file.data.split(',')[1] || file.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i);
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: file.mime });
+      const f = new File([blob], file.name, { type: file.mime });
 
-    // Simulate a tiny input to trigger framework observers
-    const keyEvent = new KeyboardEvent('keydown', { key: ' ', bubbles: true });
-    inputEl.dispatchEvent(keyEvent);
-    await delay(25); // SPEED: was 100ms
+      inputEl.focus();
+      inputEl.click?.();
+      await delay(25);
 
-    // 3. Simulate Paste event with file
-    const dt = new DataTransfer();
-    dt.items.add(file);
+      const dt = new DataTransfer();
+      dt.items.add(f);
 
-    const pasteEvent = new ClipboardEvent('paste', {
-      clipboardData: dt,
-      bubbles: true,
-      cancelable: true
-    });
+      const pasteEvent = new ClipboardEvent('paste', {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true
+      });
 
-    inputEl.dispatchEvent(pasteEvent);
-    console.log(`[BNP Gemini] File '${name}' pasted into input`);
-
-    // 4. Quick confirmation: Verify file chip appeared (caller does the full wait)
-    for (let i = 0; i < 6; i++) {
-      const hasFileChip = document.querySelector('mat-chip, .file-chip, .attachment-item, [aria-label*="Attachment"], .uploaded-file, .upload-progress');
-      if (hasFileChip) {
-        console.log(`[BNP Gemini] Visual Confirm: File '${name}' detected in UI.`);
-        break;
+      inputEl.dispatchEvent(pasteEvent);
+      
+      for (let i = 0; i < 6; i++) {
+        const hasFileChip = document.querySelector('mat-chip, .file-chip, .attachment-item, [aria-label*="Attachment"], .uploaded-file, .upload-progress');
+        if (hasFileChip) break;
+        await delay(50);
       }
-      await delay(50); // SPEED: was 300ms
+    } catch (e) {
+      console.error("[BNP Gemini] injectFile failed:", e);
     }
   }
 
   async function findInputArea() {
     let inputEl = null;
-    for (let i = 0; i < 10; i++) {
-      const editables = document.querySelectorAll('[contenteditable="true"], [contenteditable="plaintext-only"], textarea, div[role="textbox"]');
+    const INPUT_SELECTORS = [
+      'rich-text-field [contenteditable="true"]',
+      'rich-text-field [contenteditable="plaintext-only"]',
+      '.ql-editor[contenteditable="true"]',
+      '.ProseMirror[contenteditable="true"]',
+      '[contenteditable="true"]',
+      '[contenteditable="plaintext-only"]',
+      'textarea',
+      'div[role="textbox"]',
+      'query-input [contenteditable]',
+      '.text-input-field [contenteditable]'
+    ];
+    for (let i = 0; i < 30; i++) {
+      for (const sel of INPUT_SELECTORS) {
+        const els = document.querySelectorAll(sel);
+        for (const el of els) {
+          const rect = el.getBoundingClientRect();
+          if (rect.width > 50 && rect.height > 10) {
+            inputEl = el;
+            break;
+          }
+        }
+        if (inputEl) break;
+      }
+      if (inputEl) break;
+      await delay(300);
+    }
+    return inputEl;
+  }
+
+  async function injectPrompt(text) {
+    let inputEl = null;
+
+    const INPUT_SELECTORS_STR = 'rich-text-field [contenteditable="true"], rich-text-field [contenteditable="plaintext-only"], .ql-editor[contenteditable="true"], .ProseMirror[contenteditable="true"], [contenteditable="true"], [contenteditable="plaintext-only"], textarea, div[role="textbox"], query-input [contenteditable], .text-input-field [contenteditable]';
+    for (let i = 0; i < 30; i++) {
+      const editables = document.querySelectorAll(INPUT_SELECTORS_STR);
       for (const el of editables) {
         const rect = el.getBoundingClientRect();
         if (rect.width > 50 && rect.height > 10) {
@@ -417,57 +355,54 @@
       if (inputEl) break;
       await delay(100);
     }
-    return inputEl;
-  }
-
-  // ─── Prompt Injection ───────────────────────────────────────
-  async function injectPrompt(text) {
-    let inputEl = null;
-
-    // Aggressively scan the DOM multiple times to find the input box
-    for (let i = 0; i < 20; i++) {
-      // Find all contenteditable elements or textareas
-      const editables = document.querySelectorAll('[contenteditable="true"], [contenteditable="plaintext-only"], textarea, div[role="textbox"]');
-
-      // We want the most visible/relevant one (often at the bottom, or just the largest)
-      for (const el of editables) {
-        const rect = el.getBoundingClientRect();
-        if (rect.width > 50 && rect.height > 10) {
-          inputEl = el;
-          break;
-        }
-      }
-
-      if (inputEl) break;
-      await delay(100); // SPEED: was 500ms
-    }
 
     if (!inputEl) {
       sendErrorResponse(currentRequestId, "Fatal: Could not find any input text box on the screen. Please ensure the page is loaded.");
       return;
     }
 
-    // Force focus heavily
     inputEl.focus();
     inputEl.click?.();
-    await delay(25); // SPEED: was 100ms
+    await delay(25);
 
-    // Clear existing content safely
     if (inputEl.tagName === "TEXTAREA" || inputEl.tagName === "INPUT") {
       inputEl.value = "";
     } else {
       inputEl.innerHTML = "";
     }
-
-    // ─── ROBUST DOM INJECTION ───
-    // We bypass ClipboardEvent ('paste') because Chrome suspends paste events when
-    // the tab/window is minimized or not in focus. execCommand forces direct DOM mutation.
-    document.execCommand("insertText", false, text);
     
-    // Final fallback: Direct property injection if execCommand was blocked
-    await delay(25);
-    let currentText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
-    if (currentText.length < Math.min(5, text.length)) {
+    const expectedLen = text.length;
+    let currentText = "";
+
+    const dt = new DataTransfer();
+    dt.setData("text/plain", text);
+    inputEl.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }));
+    await delay(50);
+    
+    currentText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
+
+    if (currentText.length < expectedLen * 0.8) {
+      if (inputEl.tagName === "TEXTAREA" || inputEl.tagName === "INPUT") inputEl.value = "";
+      else inputEl.innerHTML = "";
+      await delay(25);
+
+      const lines = text.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].length > 0) {
+          document.execCommand("insertText", false, lines[i]);
+        }
+        if (i < lines.length - 1) {
+          inputEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true, bubbles: true, cancelable: true }));
+          if (!document.execCommand("insertLineBreak")) {
+            document.execCommand("insertText", false, '\n');
+          }
+        }
+      }
+    }
+
+    await delay(50);
+    currentText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
+    if (currentText.length < expectedLen * 0.8) {
       if (inputEl.tagName === "TEXTAREA" || inputEl.tagName === "INPUT") {
         inputEl.value = text;
       } else {
@@ -475,63 +410,42 @@
       }
     }
 
-    // Tell Angular/UI frameworks we modified the text
     const events = ["input", "change", "keydown", "keyup"];
     events.forEach(type => {
-      // It's important to mark simulated events for some frameworks
       const ev = new Event(type, { bubbles: true, cancelable: true });
       ev.simulated = true;
       inputEl.dispatchEvent(ev);
     });
 
-    // Wait for the text to actually render in the DOM before we click send.
-    // This fixes the issue where the send button clicks too fast, leaving text behind.
     for (let i = 0; i < 10; i++) {
-      const currentText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
-      if (currentText.length > 0) {
-        break;
-      }
-      await delay(25); // SPEED: was 100ms
+      const checkText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
+      if (checkText.length > 0) break;
+      await delay(25);
     }
-    await delay(50); // SPEED: was 300ms — final framework sync
+    await delay(50);
 
-    // Look at the last response BEFORE we send, so we don't accidentally capture it instead of the new one
     const previousResponseText = getLatestResponse();
-    // Track model turn count BEFORE sending — used to detect genuinely NEW responses
-    // regardless of text content (fixes false "old response" detection for identical replies)
     const previousTurnCount = document.querySelectorAll('model-response, [data-turn-role="model"], [data-message-author-role="model"]').length;
-    console.log(`[BNP Gemini] Prompt injected and rendered (${previousTurnCount} existing turns), looking for send button...`);
-
-    // Find and click the send button aggressively
+    
     let sendBtn = await findSendButton(inputEl);
     if (sendBtn) {
-      // Small delay to let the force-enable settle before clicking
       await delay(25);
       simulateClick(sendBtn);
-      console.log("[BNP Gemini] Send button clicked");
     } else {
-      console.log("[BNP Gemini] Send button not found. Smashing Enter key...");
-
-      // Spam Enter key events. Frameworks listen to different Enter properties
-      const events = [
+      const enterEvents = [
         new KeyboardEvent("keydown", { key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true }),
         new KeyboardEvent("keypress", { key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true }),
         new KeyboardEvent("keyup", { key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true })
       ];
-      events.forEach(ev => inputEl.dispatchEvent(ev));
+      enterEvents.forEach(ev => inputEl.dispatchEvent(ev));
     }
 
-    // Double check if text remained in the input box, which implies sending failed (or UI didn't sync)
-    // SPEED: Increased delay to 3500ms. Gemini's complex Angular UI can be slow to clear.
     await delay(250);
 
-    const checkText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
+    const checkTextFinal = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
     const currentTurnCount = document.querySelectorAll('model-response, [data-turn-role="model"], [data-message-author-role="model"]').length;
 
-    // Panic only if BOTH the box is still full AND no new message turn appeared
-    if (checkText.length > 20 && currentTurnCount <= previousTurnCount) {
-      // Finding ANY button as a last resort panic measure
-      console.warn("[BNP Gemini] Text remained in box! Send failed. Panic clicking any send button...");
+    if (checkTextFinal.length > 20 && currentTurnCount <= previousTurnCount) {
       const buttons = document.querySelectorAll('button, [role="button"]');
       for (const b of buttons) {
         const html = b.outerHTML.toLowerCase();
@@ -540,13 +454,9 @@
           await delay(50);
         }
       }
-
-      // Final SUPER-FALLBACK: If text STILL remains, just force clear it.
-      // Sometimes Gemini's internal state sends the data but fails to clear the visual box.
       await delay(150);
       const stillText = (inputEl.value || inputEl.innerText || inputEl.textContent || "").trim();
       if (stillText.length > 0) {
-        console.log("[BNP Gemini] Force clearing persistent text from input box.");
         if (inputEl.tagName === "TEXTAREA" || inputEl.tagName === "INPUT") {
           inputEl.value = "";
         } else {
@@ -557,7 +467,7 @@
       }
     }
 
-    watchForResponse(previousResponseText, previousTurnCount);
+    await watchForResponse(previousResponseText, previousTurnCount);
   }
 
   // ─── Find Send Button ──────────────────────────────────────
@@ -572,7 +482,10 @@
       'path[d="M3 20V14L11 12L3 10V4L22 12Z"]', // specific svg icon
       // Broad visual selectors for the send button container
       '.text-input-field-action-button',
-      'button.mat-mdc-tooltip-trigger'
+      'button.mat-mdc-tooltip-trigger',
+      'button[aria-label="Send message"]',
+      '.action-button.send',
+      'rich-text-field + div button', // Usually send button is immediately after the text field
     ];
 
     let foundBtn = null;
@@ -587,17 +500,31 @@
 
     // Look closely in the same container as the input element
     if (!foundBtn && inputEl) {
-      // Go up a few DOM levels to find the chat box wrapper
+      // Go up more DOM levels to find the chat box wrapper (Gemini UI is deeply nested)
       let container = inputEl;
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 8; i++) {
         if (!container.parentElement) break;
         container = container.parentElement;
-        const btns = container.querySelectorAll('button');
+        const btns = Array.from(container.querySelectorAll('button'));
         if (btns.length > 0) {
-          // The send button is usually the last button in the chat box row
-          foundBtn = btns[btns.length - 1];
-          break;
+          // The send button is usually the last or second-to-last button in the row
+          // We iterate backwards and avoid obvious non-send buttons like microphone/image
+          for (let j = btns.length - 1; j >= 0; j--) {
+            const btn = btns[j];
+            const aria = (btn.getAttribute("aria-label") || "").toLowerCase();
+            const tooltip = (btn.getAttribute("mattooltip") || "").toLowerCase();
+            
+            // Skip microphone/upload buttons
+            if (aria.includes("mic") || aria.includes("upload") || aria.includes("image") || tooltip.includes("mic")) {
+              continue;
+            }
+            
+            // If it's the last button and isn't a mic, it's almost certainly the send button
+            foundBtn = btn;
+            break;
+          }
         }
+        if (foundBtn) break;
       }
     }
 
@@ -606,7 +533,7 @@
       for (const btn of allButtons) {
         const aria = (btn.getAttribute("aria-label") || "").toLowerCase();
         const tooltip = (btn.getAttribute("mattooltip") || "").toLowerCase();
-        if (aria.includes("send") || tooltip.includes("send")) {
+        if (aria.includes("send") || tooltip.includes("send") || aria === "submit") {
           foundBtn = btn;
           break;
         }

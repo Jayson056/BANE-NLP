@@ -98,6 +98,7 @@ class CommandRouter:
             "• <code>/gemini</code> : Open Gemini in Chrome\n"
             "• <code>/chatgpt</code> : Open ChatGPT in Chrome\n"
             "• <code>/notebooklm</code> : Open NotebookLM in Chrome\n"
+            "• <code>/openall</code> : Open all 4 Chrome profiles (Gemini)\n"
             "• <code>/activechrome</code> : List running profiles\n"
             "• <code>/closechrome</code> : Force close all Chrome\n"
             "• <code>/delegate</code> : Force spawn a background worker\n\n"
@@ -238,6 +239,66 @@ class CommandRouter:
     async def cmd_notebooklm(self, adapter, recipient_id: str):
         await self.show_profile_picker(adapter, recipient_id, "notebooklm")
 
+    async def cmd_openall(self, adapter, recipient_id: str):
+        import asyncio
+        from core.logger import log_error
+        await adapter.send_text(recipient_id, "🚀 <b>Launching All 4 Chrome Profiles (Grid)...</b>", parse_mode="HTML")
+        # Layout for 1920x1080: Top-Left, Top-Right, Bottom-Left, Bottom-Right
+        profiles_grid = [
+            ("Profile 3", "0,0", "960,540"),
+            ("Profile 8", "960,0", "960,540"),
+            ("Profile 4", "0,540", "960,540"),
+            ("Profile 6", "960,540", "960,540"),
+        ]
+        
+        for p, pos, size in profiles_grid:
+            try:
+                import pygetwindow as gw
+                wins_before = set(w._hWnd for w in gw.getWindowsWithTitle("Chrome"))
+            except Exception:
+                wins_before = set()
+                
+            await self.launch_chrome_profile(adapter, recipient_id, recipient_id, "gemini_general", p, pos, size, force_new_window=True)
+            await asyncio.sleep(2.0)  # Wait longer for the window to actually appear
+            
+            try:
+                import pygetwindow as gw
+                wins_after = set(w._hWnd for w in gw.getWindowsWithTitle("Chrome"))
+                new_hwnds = wins_after - wins_before
+                
+                # If a new window appeared, move it
+                if new_hwnds:
+                    hwnd = list(new_hwnds)[0]
+                    for w in gw.getWindowsWithTitle("Chrome"):
+                        if w._hWnd == hwnd:
+                            if getattr(w, 'isMaximized', False):
+                                w.restore()
+                            x, y = map(int, pos.split(','))
+                            width, height = map(int, size.split(','))
+                            w.moveTo(x, y)
+                            w.resizeTo(width, height)
+                            try:
+                                import win32gui, win32con
+                                win32gui.SetWindowPos(w._hWnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+                            except Exception: pass
+                            break
+                else:
+                    # Fallback: Grab the active window if Chrome
+                    active = gw.getActiveWindow()
+                    if active and "Chrome" in active.title:
+                        if getattr(active, 'isMaximized', False):
+                            active.restore()
+                        x, y = map(int, pos.split(','))
+                        width, height = map(int, size.split(','))
+                        active.moveTo(x, y)
+                        active.resizeTo(width, height)
+                        try:
+                            import win32gui, win32con
+                            win32gui.SetWindowPos(active._hWnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+                        except Exception: pass
+            except Exception as e:
+                log_error("ROUTER_OPENALL_RESIZE", e)
+
     async def cmd_delegate(self, adapter, recipient_id: str):
         """V2 Phase 3: Manually spawn a background worker for testing."""
         from pipeline.worker import EphemeralWorker, WorkerTask
@@ -302,7 +363,7 @@ class CommandRouter:
         else:
             await adapter.send_buttons(recipient_id, text, buttons, parse_mode="HTML")
 
-    async def launch_chrome_profile(self, adapter, recipient_id: str, user_id: str, target: str, profile: str):
+    async def launch_chrome_profile(self, adapter, recipient_id: str, user_id: str, target: str, profile: str, window_pos: str = None, window_size: str = None, force_new_window: bool = False):
         """Launch a Chrome profile for the given target. Returns True if launched."""
         url = TARGETS.get(target, {}).get("profiles", {}).get(profile)
         if not url:
@@ -326,8 +387,19 @@ class CommandRouter:
                 f"--load-extension={CHROME_EXTENSION_PATH}",
                 "--no-first-run",
                 "--no-default-browser-check",
-                final_url
+                "--disable-session-crashed-bubble",
+                "--hide-crash-restore-bubble"
             ]
+            
+            if force_new_window:
+                cmd.append("--new-window")
+                
+            if window_pos:
+                cmd.append(f"--window-position={window_pos}")
+            if window_size:
+                cmd.append(f"--window-size={window_size}")
+                
+            cmd.append(final_url)
             
             # Log the exact command for debugging
             log_event("ROUTER", f"Launching Chrome: {' '.join(cmd)}")
@@ -578,6 +650,7 @@ class CommandRouter:
             "/gemini": lambda: self.cmd_gemini(adapter, recipient_id),
             "/chatgpt": lambda: self.cmd_chatgpt(adapter, recipient_id),
             "/notebooklm": lambda: self.cmd_notebooklm(adapter, recipient_id),
+            "/openall": lambda: self.cmd_openall(adapter, recipient_id),
             "/delegate": lambda: self.cmd_delegate(adapter, recipient_id),
         }
 

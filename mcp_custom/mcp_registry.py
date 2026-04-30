@@ -98,6 +98,12 @@ class MCPRegistry:
         old_count = len(self.tools)
         old_tools = set(self.tools.keys())
         
+        # Purge stale bytecode cache to prevent import issues after file overwrites
+        self._clear_pycache()
+        
+        # Invalidate import caches so Python picks up file changes
+        importlib.invalidate_caches()
+        
         # Force reimport all mcp modules to pick up changes
         import mcp_custom
         prefix = mcp_custom.__name__ + "."
@@ -129,6 +135,23 @@ class MCPRegistry:
         
         log_event("MCP", f"[HOT RELOAD] {summary}")
         return summary
+
+    def _clear_pycache(self):
+        """Remove stale .pyc bytecode files from mcp_custom/__pycache__.
+        
+        This prevents Python from serving cached versions of modules
+        after the AI overwrites source files via file_tools.write_file.
+        """
+        import glob
+        mcp_dir = os.path.dirname(os.path.abspath(__file__))
+        pycache_dir = os.path.join(mcp_dir, "__pycache__")
+        if os.path.isdir(pycache_dir):
+            for pyc_file in glob.glob(os.path.join(pycache_dir, "*.pyc")):
+                try:
+                    os.remove(pyc_file)
+                except Exception:
+                    pass
+            log_event("MCP", "[HOT RELOAD] Cleared __pycache__ bytecode.")
 
     def register_dynamic_tool(self, tool_name: str, code: str, description: str = "") -> str:
         """Register a new tool from a Python code string at runtime.
@@ -431,7 +454,7 @@ class MCPRegistry:
             '}',
             "",
             "REMEMBER: When a tool is needed, output ONLY the JSON block. No greeting, no explanation, no extra text.",
-            "After you receive a [TOOL RESULT], present the data naturally to the user following your persona format.",
+            "After you receive a [TOOL RESULT], present ALL data to the user. For listings (files, dirs, processes), show EVERY item — use 📁 for folders and 📄 for files. NEVER summarize or group items.",
         ])
             
         return "\n".join(docs)
@@ -452,10 +475,14 @@ class MCPRegistry:
             func = self.tools[name]
             
             # V2 Phase 2: Argument Validation before execution
+            # Skip VAR_POSITIONAL (*args) and VAR_KEYWORD (**kwargs) — they are
+            # inherently optional even though param.default is Parameter.empty.
             sig = inspect.signature(func)
             missing_args = []
             for param_name, param in sig.parameters.items():
-                if param.default == inspect.Parameter.empty and param_name not in args:
+                if (param.default == inspect.Parameter.empty
+                    and param.kind not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)
+                    and param_name not in args):
                     missing_args.append(param_name)
                     
             if missing_args:

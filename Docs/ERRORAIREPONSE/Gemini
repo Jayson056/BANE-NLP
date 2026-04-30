@@ -1,0 +1,1282 @@
+Gemini conversation:
+
+═══ MESSAGE SOURCE ═══
+
+
+
+FROM: TELEGRAM
+
+
+
+USER_ID: [ADMIN_TELEGRAM_ID]
+
+
+
+RESPOND VIA: TELEGRAM delivery pipeline
+
+
+
+═══════════════════════
+
+
+
+CRITICAL: You are connected to the BANE Chrome Extension Bridge. Your outputs are executed on the host.
+
+
+
+[KNOWLEDGE BASE] Docs/InjectionHeaderContext/BANE_NLP_BRAIN_knowledge.md
+
+
+
+[AI_SKILLS_DRIVE] https://drive.google.com/file/d/1Jpfx8IE7Ec-RuuwQrSc8_URI8geV25fx/view?usp=drive_link
+
+
+
+[PROFILE: Profile 6 — Personal / General]
+
+
+
+[SAVE_PATHS]
+
+
+
+Project Workspace -> D:\Project_Workspace
+
+
+
+TTS/Audio -> D:\Bane_NLP\temp_audio
+
+
+
+Screenshot -> D:\Bane_NLP\Screenshot
+
+
+
+
+
+[CONTEXT: [PLATFORM: TELEGRAM] | [USER_ID: [ADMIN_TELEGRAM_ID]] | [TARGET: GEMINI_GENERAL]]
+
+
+
+JSON OUTPUT RULES:
+
+
+
+- TECHNICAL ACTIONS: If a tool call or code is required, respond with ONLY a markdown JSON code block (```json ... ```).
+
+
+
+- CONVERSATIONAL INTENT: If the user is just greeting you or chatting, respond with natural text. Do NOT use JSON for simple 'Hi'.
+
+
+
+- FIDELITY: Blocks ensure newlines are preserved, quotes are escaped, and MCP can execute safely.
+
+
+
+REQUIREMENT: Follow all rules in BANE_NLP_BRAIN_knowledge.md exactly.
+
+
+
+USER: Hi
+
+Hi there! How's it going? I'm ready to help out with whatever you've got on your mind—whether we're diving into some technical tasks or just keeping it casual.
+
+What's on the agenda for today?
+
+═══ MESSAGE SOURCE ═══
+
+
+
+FROM: TELEGRAM
+
+
+
+USER_ID: [ADMIN_TELEGRAM_ID]
+
+
+
+RESPOND VIA: TELEGRAM delivery pipeline
+
+
+
+═══════════════════════
+
+
+
+CRITICAL: You are connected to the BANE Chrome Extension Bridge. Your outputs are executed on the host.
+
+
+
+[KNOWLEDGE BASE] Docs/InjectionHeaderContext/BANE_NLP_BRAIN_knowledge.md
+
+
+
+[AI_SKILLS_DRIVE] https://drive.google.com/file/d/1Jpfx8IE7Ec-RuuwQrSc8_URI8geV25fx/view?usp=drive_link
+
+
+
+[PROFILE: Profile 6 — Personal / General]
+
+
+
+[SAVE_PATHS]
+
+
+
+Project Workspace -> D:\Project_Workspace
+
+
+
+TTS/Audio -> D:\Bane_NLP\temp_audio
+
+
+
+Screenshot -> D:\Bane_NLP\Screenshot
+
+
+
+
+
+[CONTEXT: [PLATFORM: TELEGRAM] | [USER_ID: [ADMIN_TELEGRAM_ID]] | [TARGET: GEMINI_GENERAL]]
+
+
+
+JSON OUTPUT RULES:
+
+
+
+- TECHNICAL ACTIONS: If a tool call or code is required, respond with ONLY a markdown JSON code block (```json ... ```).
+
+
+
+- CONVERSATIONAL INTENT: If the user is just greeting you or chatting, respond with natural text. Do NOT use JSON for simple 'Hi'.
+
+
+
+- FIDELITY: Blocks ensure newlines are preserved, quotes are escaped, and MCP can execute safely.
+
+
+
+REQUIREMENT: Follow all rules in BANE_NLP_BRAIN_knowledge.md exactly.
+
+
+
+USER: Take screenshot and send here
+
+JSON
+{
+  "action": "screenshot",
+  "parameters": {
+    "save_path": "D:\\Bane_NLP\\Screenshot\\screenshot_manual.png",
+    "send_to_telegram": true
+  }
+}
+═══ MESSAGE SOURCE ═══
+
+
+
+FROM: TELEGRAM
+
+
+
+USER_ID: [ADMIN_TELEGRAM_ID]
+
+
+
+RESPOND VIA: TELEGRAM delivery pipeline
+
+
+
+═══════════════════════
+
+
+
+[KNOWLEDGE BASE] BANE_CONTEXT_FILES/BANE_NLP_BRAIN_knowledge.md
+
+
+
+[COMMAND_MODE: AUTONOMOUS_ITERATION]
+
+
+
+[USER_ID: [ADMIN_TELEGRAM_ID]]
+
+
+
+
+
+[SYSTEM NOTICE] Tool execution result provided below. Follow rules and proceed with NEXT TOOL CALL or FINAL RESPONSE.
+
+
+
+USER: BATCH EXECUTION COMPLETE (0 tools processed)
+
+
+
+--- [SCHEMA ERROR] ---
+
+
+
+[SCHEMA VALIDATION FAILED]
+
+
+
+Your tool call was invalid: Unknown tool: 'screenshot'. Did you mean 'desktop_tools.screenshot'? Use meta_tools.list_tools to see available tools.
+
+
+
+Please fix the tool name or format and try again.
+
+
+
+
+
+[EXECUTION STATUS: FAILED]
+
+
+
+⚠️ The tool returned an error. DO NOT claim success.
+
+
+
+Passed args were: {}
+
+
+
+BANE: Iteration 1 — tool failed. You have unlimited retries.
+
+
+
+READ the error message carefully. Fix the args or approach and retry.
+
+
+
+DO NOT repeat the exact same failing command. Analyze WHY it failed.
+
+
+
+DO NOT claim success. Either fix it or explain the failure to the user.
+
+JSON
+{
+  "action": "desktop_tools.screenshot",
+  "parameters": {
+    "save_path": "D:\\Bane_NLP\\Screenshot\\screenshot_manual.png",
+    "send_to_telegram": true
+  }
+}
+═══ MESSAGE SOURCE ═══
+
+
+
+FROM: TELEGRAM
+
+
+
+USER_ID: [ADMIN_TELEGRAM_ID]
+
+
+
+RESPOND VIA: TELEGRAM delivery pipeline
+
+
+
+═══════════════════════
+
+
+
+[KNOWLEDGE BASE] BANE_CONTEXT_FILES/BANE_NLP_BRAIN_knowledge.md
+
+
+
+[COMMAND_MODE: AUTONOMOUS_ITERATION]
+
+
+
+[USER_ID: [ADMIN_TELEGRAM_ID]]
+
+
+
+
+
+[SYSTEM NOTICE] Tool execution result provided below. Follow rules and proceed with NEXT TOOL CALL or FINAL RESPONSE.
+
+
+
+USER: BATCH EXECUTION COMPLETE (1 tools processed)
+
+
+
+--- [BATCH ITEM 1: desktop_tools.screenshot] ---
+
+
+
+❌ Tool execution failed: screenshot() got an unexpected keyword argument 'save_path'
+
+
+
+
+
+Traceback:
+
+
+
+Traceback (most recent call last):
+
+
+
+File "D:\Bane_NLP\mcp_custom\mcp_registry.py", line 500, in execute_tool
+
+
+
+result = await loop.run_in_executor(
+
+
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\concurrent\futures\thread.py", line 58, in run
+
+
+
+result = self.fn(*self.args, **self.kwargs)
+
+
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+TypeError: screenshot() got an unexpected keyword argument 'save_path'
+
+
+
+
+
+
+
+[EXECUTION STATUS: FAILED]
+
+
+
+⚠️ The tool returned an error. DO NOT claim success.
+
+
+
+Passed args were: {"save_path": "D:\\Bane_NLP\\Screenshot\\screenshot_manual.png", "send_to_telegram": true}
+
+
+
+BANE: Iteration 2 — tool failed. You have unlimited retries.
+
+
+
+READ the error message carefully. Fix the args or approach and retry.
+
+
+
+DO NOT repeat the exact same failing command. Analyze WHY it failed.
+
+
+
+DO NOT claim success. Either fix it or explain the failure to the user.
+
+
+
+
+
+[LAYER 1.5 TGPT COLLABORATOR] 💡 Looks like the `screenshot` function doesn’t define a `save_path` parameter; it probably uses something like `output_path` or `filename`.
+
+
+
+Check the official docs or source for the correct keyword (or just pass the path as the first positional argument). Remove or rename `save_path` accordingly to avoid the TypeError.
+
+JSON
+{
+  "action": "desktop_tools.screenshot",
+  "parameters": {
+    "filename": "D:\\Bane_NLP\\Screenshot\\screenshot_manual.png",
+    "send_to_telegram": true
+  }
+}
+═══ MESSAGE SOURCE ═══
+
+
+
+FROM: TELEGRAM
+
+
+
+USER_ID: [ADMIN_TELEGRAM_ID]
+
+
+
+RESPOND VIA: TELEGRAM delivery pipeline
+
+
+
+═══════════════════════
+
+
+
+[KNOWLEDGE BASE] BANE_CONTEXT_FILES/BANE_NLP_BRAIN_knowledge.md
+
+
+
+[COMMAND_MODE: AUTONOMOUS_ITERATION]
+
+
+
+[USER_ID: [ADMIN_TELEGRAM_ID]]
+
+
+
+
+
+[SYSTEM NOTICE] Tool execution result provided below. Follow rules and proceed with NEXT TOOL CALL or FINAL RESPONSE.
+
+
+
+USER: BATCH EXECUTION COMPLETE (1 tools processed)
+
+
+
+--- [BATCH ITEM 1: desktop_tools.screenshot] ---
+
+
+
+❌ Tool execution failed: screenshot() got an unexpected keyword argument 'send_to_telegram'
+
+
+
+
+
+Traceback:
+
+
+
+Traceback (most recent call last):
+
+
+
+File "D:\Bane_NLP\mcp_custom\mcp_registry.py", line 500, in execute_tool
+
+
+
+result = await loop.run_in_executor(
+
+
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\concurrent\futures\thread.py", line 58, in run
+
+
+
+result = self.fn(*self.args, **self.kwargs)
+
+
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+TypeError: screenshot() got an unexpected keyword argument 'send_to_telegram'
+
+
+
+
+
+
+
+[EXECUTION STATUS: FAILED]
+
+
+
+⚠️ The tool returned an error. DO NOT claim success.
+
+
+
+Passed args were: {"filename": "D:\\Bane_NLP\\Screenshot\\screenshot_manual.png", "send_to_telegram": true}
+
+
+
+BANE: Iteration 3 — 2 consecutive errors on 'desktop_tools.screenshot'.
+
+
+
+⚠️ You are repeating failures. STOP and think differently.
+
+
+
+
+
+DIAGNOSTIC HINTS:
+
+
+
+• OS: Windows. Shell: cmd.exe (via subprocess). Use Windows syntax.
+
+
+
+• For 'start' commands: use full path or ensure the program is in PATH.
+
+
+
+• Chrome profiles are at: %LOCALAPPDATA%\Google\Chrome\User Data\Profile N
+
+
+
+• Use 'command_tools.run_command' with the 'command' arg as a string.
+
+
+
+• If a file/path doesn't exist, use file_tools.list_dir to explore first.
+
+
+
+• Try a COMPLETELY different approach to solve the same problem.
+
+
+
+
+
+Fix the root cause. DO NOT retry the same broken command.
+
+
+
+
+
+[LAYER 1.5 TGPT COLLABORATOR] 💡 The `screenshot()` function doesn’t accept a `send_to_telegram` keyword, so the tool call is blowing up. Remove that argument from the call (or wrap the screenshot in a two‑step process: first capture, then use `telegram_tools.send_file` separately). Ensure any external posting logic is handled after the screenshot is saved.
+
+JSON
+{
+  "action": "desktop_tools.screenshot",
+  "parameters": {
+    "filename": "D:\\Bane_NLP\\Screenshot\\screenshot_manual.png"
+  }
+}
+═══ MESSAGE SOURCE ═══
+
+
+
+FROM: TELEGRAM
+
+
+
+USER_ID: [ADMIN_TELEGRAM_ID]
+
+
+
+RESPOND VIA: TELEGRAM delivery pipeline
+
+
+
+═══════════════════════
+
+
+
+[KNOWLEDGE BASE] BANE_CONTEXT_FILES/BANE_NLP_BRAIN_knowledge.md
+
+
+
+[COMMAND_MODE: AUTONOMOUS_ITERATION]
+
+
+
+[USER_ID: [ADMIN_TELEGRAM_ID]]
+
+
+
+
+
+[SYSTEM NOTICE] Tool execution result provided below. Follow rules and proceed with NEXT TOOL CALL or FINAL RESPONSE.
+
+
+
+USER: BATCH EXECUTION COMPLETE (1 tools processed)
+
+
+
+--- [BATCH ITEM 1: desktop_tools.screenshot] ---
+
+
+
+✅ Screenshot saved: D:\Bane_NLP\Screenshot\screenshot_manual.png
+
+
+
+✅ File sent to Telegram.
+
+
+
+
+
+[EXECUTION STATUS: SUCCESS]
+
+
+
+BANE: Iteration 4 complete. You have unlimited iterations to get this right.
+
+
+
+
+
+🚨 MANDATORY: If the task requires further tools (e.g. creating more files, running commands), you MUST respond with ONLY THE NEXT JSON TOOL CALL and NOTHING ELSE.
+
+
+
+❌ DO NOT narrate your progress. DO NOT provide status updates. DO NOT say 'I am proceeding'.
+
+
+
+✅ ONLY provide your final human-readable response once the task is 100% PHYSICALLY COMPLETE on the host system.
+
+The screenshot has been captured and saved to D:\Bane_NLP\Screenshot\screenshot_manual.png. It should be appearing in our Telegram chat right now.
+
+
+
+Logs:
+
+
+╔══════════════════════════════════════════════════════════╗
+║                                                          ║
+║     ██████╗ ███╗   ██╗██████╗                            ║
+║     ██╔══██╗████╗  ██║██╔══██╗                           ║
+║     ██████╔╝██╔██╗ ██║██████╔╝                           ║
+║     ██╔══██╗██║╚██╗██║██╔═══╝                            ║
+║     ██████╔╝██║ ╚████║██║                                ║
+║     ╚═════╝ ╚═╝  ╚═══╝╚═╝                               ║
+║                                                          ║
+║     Bane Notebook Pipeline                               ║
+║     Telegram → Bane → Chrome → Gemini / NotebookLM      ║
+║                                                          ║
+╚══════════════════════════════════════════════════════════╝
+
+2026-04-29 16:57:49,112 [INFO] BNP: Initializing BNP...
+2026-04-29 16:57:49,134 [INFO] BNP: [DB] Schema verified / migrated.
+2026-04-29 16:57:49,230 [INFO] BNP: [CORE] BaneCore initialized with Unified Response Pipeline & Queueing Strategy.
+2026-04-29 16:57:51,284 [INFO] BNP: Starting Telegram bot polling...
+2026-04-29 16:57:51,973 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getMe "HTTP/1.1 200 OK"
+2026-04-29 16:57:52,028 [INFO] websockets.server: server listening on 127.0.0.1:8766
+2026-04-29 16:57:52,029 [INFO] BNP: [BRIDGE] WebSocket server started on ws://127.0.0.1:8766
+2026-04-29 16:57:52,029 [INFO] BNP: [LOGGER] Telegram error notifier registered.
+2026-04-29 16:57:52,030 [INFO] BNP: [STARTUP] Telegram error notifier registered.
+2026-04-29 16:57:52,031 [INFO] BNP: [STARTUP] Starting Messenger Webhook server...
+2026-04-29 16:57:52,031 [INFO] BNP: [STARTUP] Checking for existing Portfolio Gateway...
+2026-04-29 16:57:52,224 [INFO] BNP: [STARTUP] Starting Portfolio Gateway (Port 8000)...
+2026-04-29 16:57:52,233 [INFO] BNP: [STARTUP] Browser bridge is ready, waiting for Chrome extension...
+2026-04-29 16:57:52,233 [INFO] BNP: [STARTUP] BNP is fully operational (Telegram + Messenger)!
+2026-04-29 16:57:52,241 [INFO] BNP: [STARTUP] Messenger Webhook running asynchronously on port 5000
+2026-04-29 16:57:52,720 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 16:57:52,734 [INFO] BNP: [STARTUP_NOTIFY_TG] Sent to [ADMIN_TELEGRAM_ID]
+2026-04-29 16:57:53,472 [INFO] BNP: [MESSENGER_SEND_STATUS] Recipient: [ADMIN_MESSENGER_ID] | Status: 200 | Res: {"recipient_id": "[ADMIN_MESSENGER_ID]", "message_id": "m_wkP8N9fFQ6bXQP5ueveUNe26JmWGnnNCzLBhwFgjzKTo5O_DIhK-2HD0jC4OJpci32lbZMTAP9e_9M09BrhuRw"}
+2026-04-29 16:57:53,533 [INFO] BNP: [STARTUP_NOTIFY_FB] Sent to [ADMIN_MESSENGER_ID]
+2026-04-29 16:57:53,820 [INFO] websockets.server: connection open
+2026-04-29 16:57:53,821 [INFO] BNP: [BRIDGE] Chrome extension connected: ('127.0.0.1', 60758)
+2026-04-29 16:57:53,839 [INFO] BNP: [BRIDGE] Background service worker registered (profile=Profile 6)
+2026-04-29 16:57:53,856 [INFO] BNP: [BRIDGE] Tab registered via BG worker: target=gemini profile=Profile 6 tab=882802462
+2026-04-29 16:57:53,856 [INFO] BNP: [BRIDGE] Background relay registered: target=gemini profile=Profile 6
+2026-04-29 16:57:53,889 [INFO] BNP: [MESSENGER_SEND_STATUS] Recipient: 26917714517832064 | Status: 400 | Res: {"error": {"message": "(#10) This message is sent outside of allowed window. Learn more about the new policy here: https://developers.facebook.com/docs/messenger-platform/policy-overview", "type": "OAuthException", "code": 10, "error_subcode": 2018278, "fbtrace_id": "A5mDoYPq_t6_K5-ckjLQfZO"}}
+2026-04-29 16:57:53,941 [INFO] BNP: [STARTUP_NOTIFY_FB] Sent to 26917714517832064
+
+✅ BNP is running. Telegram & Messenger are active!
+   Press Ctrl+C to stop.
+
+2026-04-29 16:57:54,144 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/deleteWebhook "HTTP/1.1 200 OK"
+2026-04-29 16:57:54,150 [INFO] telegram.ext.Application: Application started
+2026-04-29 16:57:59,244 [INFO] websockets.server: connection open
+2026-04-29 16:57:59,245 [INFO] BNP: [BRIDGE] Chrome extension connected: ('127.0.0.1', 58086)
+2026-04-29 16:57:59,248 [INFO] websockets.server: connection open
+2026-04-29 16:57:59,248 [INFO] BNP: [BRIDGE] Chrome extension connected: ('127.0.0.1', 52939)
+2026-04-29 16:57:59,262 [INFO] BNP: [BRIDGE] Background service worker registered (profile=Profile 4)
+2026-04-29 16:57:59,263 [INFO] BNP: [BRIDGE] Background service worker registered (profile=Profile 8)
+2026-04-29 16:57:59,267 [INFO] BNP: [BRIDGE] Tab registered via BG worker: target=gemini_portfolio profile=Profile 4 tab=882802382
+2026-04-29 16:57:59,267 [INFO] BNP: [BRIDGE] Background relay registered: target=gemini_portfolio profile=Profile 4
+2026-04-29 16:57:59,270 [INFO] BNP: [BRIDGE] Tab registered via BG worker: target=gemini profile=Profile 8 tab=882802313
+2026-04-29 16:57:59,270 [INFO] BNP: [BRIDGE] Background relay registered: target=gemini profile=Profile 8
+2026-04-29 16:58:03,811 [INFO] websockets.server: connection open
+2026-04-29 16:58:03,812 [INFO] BNP: [BRIDGE] Chrome extension connected: ('127.0.0.1', 65497)
+2026-04-29 16:58:03,838 [INFO] BNP: [BRIDGE] Background service worker registered (profile=Profile 3)
+2026-04-29 16:58:03,850 [INFO] BNP: [BRIDGE] Tab registered via BG worker: target=gemini profile=Profile 3 tab=882802016
+2026-04-29 16:58:03,851 [INFO] BNP: [BRIDGE] Background relay registered: target=gemini profile=Profile 3
+2026-04-29 16:58:04,753 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:58:14,977 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:58:25,192 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:58:35,409 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:58:37,440 [INFO] BNP: [MESSENGER_WEBHOOK] Received data: {"object": "page", "entry": [{"time": 1777453116326, "id": "1023497434181598", "messaging": [{"sender": {"id": "[ADMIN_MESSENGER_ID]"}, "recipient": {"id": "1023497434181598"}, "timestamp": 1777453116046, "read": {"watermark": 1777453073221}}]}]}
+2026-04-29 16:58:37,441 [INFO] aiohttp.access: 127.0.0.1 [29/Apr/2026:16:58:37 +0800] "POST /webhooks/messenger HTTP/1.1" 200 0 "-" "-"
+2026-04-29 16:58:44,611 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:58:45,445 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+SUCCESS: The process with PID 18448 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 17512 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 18072 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 16548 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 21432 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 21836 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 20860 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 22608 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 23212 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 424 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 22244 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 10080 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 10232 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 24324 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 23764 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 22512 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 15156 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 20720 (child process of PID 5252) has been terminated.
+SUCCESS: The process with PID 5252 (child process of PID 21700) has been terminated.
+2026-04-29 16:58:45,780 [INFO] BNP: [BRIDGE] Connection closed: ('127.0.0.1', 58086) (no close frame received or sent)
+2026-04-29 16:58:45,780 [INFO] BNP: [BRIDGE] Chrome extension disconnected: ('127.0.0.1', 58086)
+2026-04-29 16:58:45,784 [INFO] BNP: [BRIDGE] Connection closed: ('127.0.0.1', 60758) (no close frame received or sent)
+2026-04-29 16:58:45,784 [INFO] BNP: [BRIDGE] Chrome extension disconnected: ('127.0.0.1', 60758)
+2026-04-29 16:58:45,785 [INFO] BNP: [BRIDGE] Connection closed: ('127.0.0.1', 65497) (no close frame received or sent)
+2026-04-29 16:58:45,785 [INFO] BNP: [BRIDGE] Chrome extension disconnected: ('127.0.0.1', 65497)
+2026-04-29 16:58:45,794 [INFO] BNP: [BRIDGE] Connection closed: ('127.0.0.1', 52939) (no close frame received or sent)
+2026-04-29 16:58:45,794 [INFO] BNP: [BRIDGE] Chrome extension disconnected: ('127.0.0.1', 52939)
+2026-04-29 16:58:53,531 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:58:54,364 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 16:58:54,446 [INFO] BNP: [BRIDGE] Pending profile registered: 'Profile 3'
+2026-04-29 16:58:54,446 [INFO] BNP: [ROUTER] Launching Chrome: C:\Program Files\Google\Chrome\Application\chrome.exe --profile-directory=Profile 3 --user-data-dir=C:\Users\YourPC\AppData\Local\Google\Chrome\User Data --load-extension=D:\Bane_NLP\chrome_extension --no-first-run --no-default-browser-check --disable-session-crashed-bubble --hide-crash-restore-bubble --new-window --window-position=0,0 --window-size=960,540 https://gemini.google.com/app?bnp_profile=Profile+3
+2026-04-29 16:58:54,851 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 16:58:57,564 [INFO] BNP: [BRIDGE] Pending profile registered: 'Profile 8'
+2026-04-29 16:58:57,569 [INFO] BNP: [ROUTER] Launching Chrome: C:\Program Files\Google\Chrome\Application\chrome.exe --profile-directory=Profile 8 --user-data-dir=C:\Users\YourPC\AppData\Local\Google\Chrome\User Data --load-extension=D:\Bane_NLP\chrome_extension --no-first-run --no-default-browser-check --disable-session-crashed-bubble --hide-crash-restore-bubble --new-window --window-position=960,0 --window-size=960,540 https://gemini.google.com/app?bnp_profile=Profile+8
+2026-04-29 16:58:58,007 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 16:59:00,929 [INFO] BNP: [BRIDGE] Pending profile registered: 'Profile 4'
+2026-04-29 16:59:01,147 [INFO] BNP: [ROUTER] Launching Chrome: C:\Program Files\Google\Chrome\Application\chrome.exe --profile-directory=Profile 4 --user-data-dir=C:\Users\YourPC\AppData\Local\Google\Chrome\User Data --load-extension=D:\Bane_NLP\chrome_extension --no-first-run --no-default-browser-check --disable-session-crashed-bubble --hide-crash-restore-bubble --new-window --window-position=0,540 --window-size=960,540 https://gemini.google.com/app?bnp_profile=Profile+4
+2026-04-29 16:59:02,123 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 16:59:03,883 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:59:04,693 [INFO] BNP: [BRIDGE] Pending profile registered: 'Profile 6'
+2026-04-29 16:59:04,861 [INFO] BNP: [ROUTER] Launching Chrome: C:\Program Files\Google\Chrome\Application\chrome.exe --profile-directory=Profile 6 --user-data-dir=C:\Users\YourPC\AppData\Local\Google\Chrome\User Data --load-extension=D:\Bane_NLP\chrome_extension --no-first-run --no-default-browser-check --disable-session-crashed-bubble --hide-crash-restore-bubble --new-window --window-position=960,540 --window-size=960,540 https://gemini.google.com/app?bnp_profile=Profile+6
+2026-04-29 16:59:05,519 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 16:59:13,663 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:59:15,317 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 16:59:15,833 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 16:59:15,905 [INFO] BNP: [ENGINE] ⚡ Webhook Input [4d9e996d] Source: Telegram | Conv: 47416447-cd22-4220-afbb-e32a12762564
+2026-04-29 16:59:15,908 [INFO] BNP: [INTAKE] Intent=general, Target Override=None
+2026-04-29 16:59:15,911 [INFO] BNP: [INTAKE] Approved — intent classified, guardrails passed.
+2026-04-29 16:59:15,911 [INFO] BNP: [LAYER_1] Intake Output: Intent=general, Guardrails=PASSED
+2026-04-29 16:59:15,911 [INFO] BNP: [TGPT_ORCH] Orchestration skipped — message too short (2 chars).
+2026-04-29 16:59:15,911 [INFO] BNP: [LAYER_1.5] TGPT Orchestrator: skipped (simple intent)
+2026-04-29 16:59:16,010 [INFO] BNP: [PIPELINE] [Planner] Target=gemini_general, SkipPersona=False, Session=24bb60e2
+2026-04-29 16:59:16,050 [INFO] BNP: [PIPELINE] [Composer] Profile=Profile 6 (STANDARD), Prompt=1131 chars, Files=0, Target=gemini_general
+2026-04-29 16:59:16,051 [INFO] BNP: [LAYER_2] Plan+Compose Output: Target=GEMINI_GENERAL, Prompt=1131 chars
+2026-04-29 16:59:16,052 [INFO] BNP: [LAYER_3] BridgeExecutor: Dispatch to target gemini_general
+2026-04-29 16:59:16,053 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] FAILED: No browser connection.
+2026-04-29 16:59:16,445 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/deleteMessage "HTTP/1.1 200 OK"
+2026-04-29 16:59:16,977 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 16:59:22,074 [INFO] websockets.server: connection open
+2026-04-29 16:59:22,074 [INFO] BNP: [BRIDGE] Chrome extension connected: ('127.0.0.1', 53188)
+2026-04-29 16:59:22,077 [INFO] websockets.server: connection open
+2026-04-29 16:59:22,078 [INFO] BNP: [BRIDGE] Chrome extension connected: ('127.0.0.1', 55097)
+2026-04-29 16:59:22,079 [INFO] websockets.server: connection open
+2026-04-29 16:59:22,083 [INFO] BNP: [BRIDGE] Chrome extension connected: ('127.0.0.1', 55861)
+2026-04-29 16:59:22,093 [INFO] websockets.server: connection open
+2026-04-29 16:59:22,093 [INFO] BNP: [BRIDGE] Chrome extension connected: ('127.0.0.1', 54291)
+2026-04-29 16:59:22,124 [INFO] BNP: [BRIDGE] Claiming pending profile 'Profile 6' for connection that reported 'Default'
+2026-04-29 16:59:22,124 [INFO] BNP: [BRIDGE] Status update: connected | Target: gemini_portfolio | Profile: Profile 6
+2026-04-29 16:59:22,129 [INFO] BNP: [BRIDGE] Status update: connected | Target: gemini_portfolio | Profile: Default
+2026-04-29 16:59:22,142 [INFO] BNP: [BRIDGE] Status update: connected | Target: gemini | Profile: Profile 8
+2026-04-29 16:59:22,144 [INFO] BNP: [BRIDGE] Status update: connected | Target: gemini | Profile: Profile 8
+2026-04-29 16:59:22,144 [INFO] BNP: [BRIDGE] Status update: connected | Target: gemini | Profile: Profile 3
+2026-04-29 16:59:22,145 [INFO] BNP: [BRIDGE] Status update: connected | Target: gemini | Profile: Profile 6
+2026-04-29 16:59:22,154 [INFO] BNP: [BRIDGE] Status update: connected | Target: gemini | Profile: Profile 3
+2026-04-29 16:59:22,156 [INFO] BNP: [BRIDGE] Background service worker registered (profile=Profile 4)
+2026-04-29 16:59:22,157 [INFO] BNP: [BRIDGE] Background service worker registered (profile=Profile 8)
+2026-04-29 16:59:22,157 [INFO] BNP: [BRIDGE] Status update: connected | Target: gemini | Profile: Profile 6
+2026-04-29 16:59:22,159 [INFO] BNP: [BRIDGE] Background service worker registered (profile=Profile 6)
+2026-04-29 16:59:22,161 [INFO] BNP: [BRIDGE] Tab registered via BG worker: target=gemini profile=Profile 8 tab=882802668
+2026-04-29 16:59:22,161 [INFO] BNP: [BRIDGE] Background relay registered: target=gemini profile=Profile 8
+2026-04-29 16:59:22,162 [INFO] BNP: [BRIDGE] Tab registered via BG worker: target=gemini_portfolio profile=Profile 4 tab=882802735
+2026-04-29 16:59:22,162 [INFO] BNP: [BRIDGE] Background relay registered: target=gemini_portfolio profile=Profile 4
+2026-04-29 16:59:22,164 [INFO] BNP: [BRIDGE] Background service worker registered (profile=Profile 3)
+2026-04-29 16:59:22,170 [INFO] BNP: [BRIDGE] Tab registered via BG worker: target=gemini profile=Profile 6 tab=882802810
+2026-04-29 16:59:22,170 [INFO] BNP: [BRIDGE] Background relay registered: target=gemini profile=Profile 6
+2026-04-29 16:59:22,172 [INFO] BNP: [BRIDGE] Tab registered via BG worker: target=gemini profile=Profile 3 tab=882802576
+2026-04-29 16:59:22,173 [INFO] BNP: [BRIDGE] Background relay registered: target=gemini profile=Profile 3
+2026-04-29 16:59:24,289 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:59:34,411 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:59:35,231 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 16:59:35,650 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 16:59:35,677 [INFO] BNP: [ENGINE] ⚡ Webhook Input [e027c86f] Source: Telegram | Conv: 47416447-cd22-4220-afbb-e32a12762564
+2026-04-29 16:59:35,679 [INFO] BNP: [INTAKE] Intent=general, Target Override=None
+2026-04-29 16:59:35,679 [INFO] BNP: [INTAKE] Approved — intent classified, guardrails passed.
+2026-04-29 16:59:35,680 [INFO] BNP: [LAYER_1] Intake Output: Intent=general, Guardrails=PASSED
+2026-04-29 16:59:35,680 [INFO] BNP: [TGPT_ORCH] Orchestration skipped — message too short (2 chars).
+2026-04-29 16:59:35,680 [INFO] BNP: [LAYER_1.5] TGPT Orchestrator: skipped (simple intent)
+2026-04-29 16:59:35,745 [INFO] BNP: [PIPELINE] [Planner] Target=gemini_general, SkipPersona=False, Session=91536995
+2026-04-29 16:59:35,750 [INFO] BNP: [PIPELINE] [Composer] Profile=Profile 6 (STANDARD), Prompt=1131 chars, Files=0, Target=gemini_general
+2026-04-29 16:59:35,750 [INFO] BNP: [LAYER_2] Plan+Compose Output: Target=GEMINI_GENERAL, Prompt=1131 chars
+2026-04-29 16:59:35,751 [INFO] BNP: [LAYER_3] BridgeExecutor: Dispatch to target gemini_general
+2026-04-29 16:59:35,751 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Profile 'Profile 6' confirmed connected for target 'gemini_general'. Proceeding.
+2026-04-29 16:59:35,751 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [760f3eee] queued. Waiting for browser lock...
+2026-04-29 16:59:35,751 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [760f3eee] lock acquired. Target: gemini_general | Profile: Profile 6
+2026-04-29 16:59:35,752 [INFO] BNP: [BRIDGE] Profile-matched dispatch: profile='Profile 6', target='gemini'
+2026-04-29 16:59:35,752 [INFO] BNP: [BRIDGE] Payload dispatched → ('127.0.0.1', 55097) [Target: gemini | Profile: Profile 6]
+2026-04-29 16:59:35,782 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 16:59:35,786 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 16:59:35,792 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 16:59:35,794 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 16:59:37,861 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:37,862 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:37,866 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:37,866 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:37,872 [INFO] BNP: [BRIDGE] Partial update received for request 760f3eee-64f2-475e-9cdf-eb8c58dbb164
+2026-04-29 16:59:37,873 [INFO] BNP: [RESPONSE] AI response received from gemini (2 chars)
+2026-04-29 16:59:37,892 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:37,893 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:37,895 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:37,897 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:37,911 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:37,914 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:37,916 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:37,917 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:37,927 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:37,931 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:37,933 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:37,934 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:38,140 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:38,155 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:38,160 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:38,162 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:38,168 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:38,168 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:38,169 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:38,171 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:38,174 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:38,175 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:38,177 [INFO] BNP: [BRIDGE] Partial update received for request 760f3eee-64f2-475e-9cdf-eb8c58dbb164
+2026-04-29 16:59:38,177 [INFO] BNP: [RESPONSE] AI response received from gemini (85 chars)
+2026-04-29 16:59:38,192 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:38,192 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:38,202 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:38,205 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:38,206 [INFO] BNP: [BRIDGE] Partial update received for request 760f3eee-64f2-475e-9cdf-eb8c58dbb164
+2026-04-29 16:59:38,207 [INFO] BNP: [RESPONSE] AI response received from gemini (166 chars)
+2026-04-29 16:59:38,238 [INFO] BNP: [BRIDGE] Partial update received for request 760f3eee-64f2-475e-9cdf-eb8c58dbb164
+2026-04-29 16:59:38,239 [INFO] BNP: [RESPONSE] AI response received from gemini (192 chars)
+2026-04-29 16:59:38,311 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 16:59:38,987 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 16:59:39,053 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 16:59:39,124 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 16:59:40,281 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] Stability reached. Finalizing capture...
+2026-04-29 16:59:40,286 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] Stability reached. Finalizing capture...
+2026-04-29 16:59:40,426 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 16:59:40,431 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 16:59:41,113 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] Main Copy button did not yield clipboard data.
+2026-04-29 16:59:41,116 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] Main Copy button did not yield clipboard data.
+2026-04-29 16:59:41,118 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 16:59:41,119 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 16:59:41,120 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 16:59:41,121 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 16:59:41,123 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] Starting greedy image scan...
+2026-04-29 16:59:41,126 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] Starting greedy image scan...
+2026-04-29 16:59:41,623 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] Scan completed. Success: false (0 imgs)
+2026-04-29 16:59:41,623 [INFO] BNP: [BRIDGE_LOG] [Gemini] [760f3eee] Scan completed. Success: false (0 imgs)
+2026-04-29 16:59:41,626 [INFO] BNP: [BRIDGE] Final response received for request 760f3eee-64f2-475e-9cdf-eb8c58dbb164
+2026-04-29 16:59:41,626 [INFO] BNP: [RESPONSE] AI response received from gemini (192 chars)
+2026-04-29 16:59:41,626 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [760f3eee] received response.
+2026-04-29 16:59:41,671 [INFO] BNP: [BRIDGE_EXEC] [Execute] Text=192 chars, Suggestions=1, Images=0, Files=0, Audio=no
+2026-04-29 16:59:41,673 [INFO] BNP: [ANALYZE] Task Complete after 1 iterations (0 errors encountered).
+2026-04-29 16:59:41,673 [INFO] BNP: [RENDERER] Rendering input: 192 chars | Text preview: Hi there! How's it going? I'm ready to help out wi...
+2026-04-29 16:59:41,681 [INFO] BNP: [RENDERER] Rendering complete: 192 chars
+2026-04-29 16:59:41,682 [INFO] BNP: [RETURN] Rendered response (192 chars) → TELEGRAM
+2026-04-29 16:59:41,892 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 16:59:41,900 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 16:59:42,062 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/deleteMessage "HTTP/1.1 200 OK"
+2026-04-29 16:59:42,456 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 16:59:44,641 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:59:51,614 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 16:59:52,392 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 16:59:52,820 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 16:59:52,848 [INFO] BNP: [ENGINE] ⚡ Webhook Input [49a6477f] Source: Telegram | Conv: 47416447-cd22-4220-afbb-e32a12762564
+2026-04-29 16:59:52,849 [INFO] BNP: [INTAKE] Intent=general, Target Override=None
+2026-04-29 16:59:52,850 [INFO] BNP: [INTAKE] Approved — intent classified, guardrails passed.
+2026-04-29 16:59:52,851 [INFO] BNP: [LAYER_1] Intake Output: Intent=general, Guardrails=PASSED
+2026-04-29 16:59:52,851 [INFO] BNP: [TGPT_ORCH] Orchestration skipped — no complex task indicators (simple query → direct to LLM).
+2026-04-29 16:59:52,852 [INFO] BNP: [LAYER_1.5] TGPT Orchestrator: skipped (simple intent)
+2026-04-29 16:59:52,916 [INFO] BNP: [PIPELINE] [Planner] Target=gemini_general, SkipPersona=False, Session=2b37f5bc
+2026-04-29 16:59:52,922 [INFO] BNP: [PIPELINE] [Composer] Profile=Profile 6 (STANDARD), Prompt=1158 chars, Files=0, Target=gemini_general
+2026-04-29 16:59:52,922 [INFO] BNP: [LAYER_2] Plan+Compose Output: Target=GEMINI_GENERAL, Prompt=1158 chars
+2026-04-29 16:59:52,923 [INFO] BNP: [LAYER_3] BridgeExecutor: Dispatch to target gemini_general
+2026-04-29 16:59:52,923 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Profile 'Profile 6' confirmed connected for target 'gemini_general'. Proceeding.
+2026-04-29 16:59:52,923 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [f2bb4fa1] queued. Waiting for browser lock...
+2026-04-29 16:59:52,923 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [f2bb4fa1] lock acquired. Target: gemini_general | Profile: Profile 6
+2026-04-29 16:59:52,923 [INFO] BNP: [BRIDGE] Profile-matched dispatch: profile='Profile 6', target='gemini'
+2026-04-29 16:59:52,924 [INFO] BNP: [BRIDGE] Payload dispatched → ('127.0.0.1', 55097) [Target: gemini | Profile: Profile 6]
+2026-04-29 16:59:52,933 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 16:59:52,934 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 16:59:52,937 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 16:59:52,943 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 16:59:54,889 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:54,904 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:55,168 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,193 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,198 [INFO] BNP: [BRIDGE] Partial update received for request f2bb4fa1-eaf6-439e-a267-4e21e137fa92
+2026-04-29 16:59:55,199 [INFO] BNP: [RESPONSE] AI response received from gemini (1 chars)
+2026-04-29 16:59:55,236 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:55,249 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:55,256 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,271 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,290 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:55,329 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:55,337 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,340 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,344 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:55,353 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:55,354 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,359 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,369 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:55,373 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:55,384 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,386 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,387 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:55,389 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:55,391 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,392 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:55,393 [INFO] BNP: [BRIDGE] Partial update received for request f2bb4fa1-eaf6-439e-a267-4e21e137fa92
+2026-04-29 16:59:55,393 [INFO] BNP: [RESPONSE] AI response received from gemini (148 chars)
+2026-04-29 16:59:55,620 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 16:59:56,204 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 16:59:56,445 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:56,446 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 16:59:56,447 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:56,450 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 16:59:56,483 [INFO] BNP: [BRIDGE] Partial update received for request f2bb4fa1-eaf6-439e-a267-4e21e137fa92
+2026-04-29 16:59:56,484 [INFO] BNP: [RESPONSE] AI response received from gemini (148 chars)
+2026-04-29 16:59:57,485 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Stability reached. Finalizing capture...
+2026-04-29 16:59:57,486 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Stability reached. Finalizing capture...
+2026-04-29 16:59:57,642 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 16:59:57,644 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 16:59:58,099 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Main Copy button did not yield clipboard data.
+2026-04-29 16:59:58,102 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Main Copy button did not yield clipboard data.
+2026-04-29 16:59:58,103 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Trying code block copy button...
+2026-04-29 16:59:58,104 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Trying code block copy button...
+2026-04-29 16:59:58,929 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 16:59:58,931 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 16:59:58,932 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 16:59:58,933 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 16:59:58,936 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Starting greedy image scan...
+2026-04-29 16:59:58,936 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Starting greedy image scan...
+2026-04-29 16:59:59,431 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Scan completed. Success: false (0 imgs)
+2026-04-29 16:59:59,431 [INFO] BNP: [BRIDGE_LOG] [Gemini] [f2bb4fa1] Scan completed. Success: false (0 imgs)
+2026-04-29 16:59:59,434 [INFO] BNP: [BRIDGE] Final response received for request f2bb4fa1-eaf6-439e-a267-4e21e137fa92
+2026-04-29 16:59:59,435 [INFO] BNP: [RESPONSE] AI response received from gemini (148 chars)
+2026-04-29 16:59:59,435 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [f2bb4fa1] received response.
+2026-04-29 16:59:59,478 [INFO] BNP: [BRIDGE_EXEC] [Execute] Text=148 chars, Suggestions=0, Images=0, Files=0, Audio=no
+2026-04-29 16:59:59,775 [INFO] BNP: [MCP_REGISTRY] Discovering tools across 21 modules...
+2026-04-29 16:59:59,778 [INFO] BNP: [MCP_REGISTRY] Discovering tools across 21 modules...
+2026-04-29 16:59:59,791 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: communication_tools.send_messenger_file
+2026-04-29 16:59:59,793 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: communication_tools.send_messenger_update
+2026-04-29 16:59:59,794 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: communication_tools.send_telegram_file
+2026-04-29 16:59:59,796 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: send_templated_email_fixed
+2026-04-29 16:59:59,799 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: custom.list_and_read_docs
+2026-04-29 16:59:59,800 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: media_tools.text_to_speech_file
+2026-04-29 16:59:59,804 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: messenger_sync.send_screenshot
+2026-04-29 16:59:59,805 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: messenger.send_screenshot
+2026-04-29 16:59:59,806 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: messenger_v2.send_screenshot
+2026-04-29 16:59:59,808 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: system.surgical_edit
+2026-04-29 16:59:59,809 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: utility_tools.bulk_send_docs
+2026-04-29 16:59:59,811 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: utility_tools.bulk_send_injection_context
+2026-04-29 16:59:59,811 [INFO] BNP: [MCP] Registered 79 tools.
+2026-04-29 16:59:59,828 [INFO] BNP: [MCP_REGISTRY] Registered 79 tools total
+2026-04-29 16:59:59,837 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: communication_tools.send_messenger_file
+2026-04-29 16:59:59,837 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: communication_tools.send_messenger_update
+2026-04-29 16:59:59,839 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: communication_tools.send_telegram_file
+2026-04-29 16:59:59,839 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: send_templated_email_fixed
+2026-04-29 16:59:59,841 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: custom.list_and_read_docs
+2026-04-29 16:59:59,842 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: media_tools.text_to_speech_file
+2026-04-29 16:59:59,843 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: messenger_sync.send_screenshot
+2026-04-29 16:59:59,843 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: messenger.send_screenshot
+2026-04-29 16:59:59,844 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: messenger_v2.send_screenshot
+2026-04-29 16:59:59,846 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: system.surgical_edit
+2026-04-29 16:59:59,847 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: utility_tools.bulk_send_docs
+2026-04-29 16:59:59,847 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: utility_tools.bulk_send_injection_context
+2026-04-29 16:59:59,847 [INFO] BNP: [MCP] Registered 79 tools.
+2026-04-29 16:59:59,864 [INFO] BNP: [MCP_REGISTRY] Registered 79 tools total
+2026-04-29 16:59:59,867 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: communication_tools.send_messenger_file
+2026-04-29 16:59:59,868 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: communication_tools.send_messenger_update
+2026-04-29 16:59:59,870 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: communication_tools.send_telegram_file
+2026-04-29 16:59:59,870 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: send_templated_email_fixed
+2026-04-29 16:59:59,873 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: custom.list_and_read_docs
+2026-04-29 16:59:59,874 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: media_tools.text_to_speech_file
+2026-04-29 16:59:59,875 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: messenger_sync.send_screenshot
+2026-04-29 16:59:59,876 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: messenger.send_screenshot
+2026-04-29 16:59:59,876 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: messenger_v2.send_screenshot
+2026-04-29 16:59:59,878 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: system.surgical_edit
+2026-04-29 16:59:59,879 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: utility_tools.bulk_send_docs
+2026-04-29 16:59:59,879 [INFO] BNP: [MCP] [DYNAMIC] Loaded tool: utility_tools.bulk_send_injection_context
+2026-04-29 16:59:59,879 [INFO] BNP: [MCP] Registered 79 tools.
+2026-04-29 16:59:59,881 [INFO] BNP: [SCHEMA] Tool call validation failed: Unknown tool: 'screenshot'. Did you mean 'desktop_tools.screenshot'? Use meta_tools.list_tools to see available tools.
+2026-04-29 16:59:59,881 [INFO] BNP: [ANALYZE] Adaptive Loop: Re-dispatching iteration 1 (errors: 0/0)...
+2026-04-29 16:59:59,882 [INFO] BNP: [LAYER_3] BridgeExecutor: Dispatch to target gemini_general
+2026-04-29 16:59:59,883 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Profile 'Profile 6' confirmed connected for target 'gemini_general'. Proceeding.
+2026-04-29 16:59:59,883 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [e664b36d] queued. Waiting for browser lock...
+2026-04-29 16:59:59,883 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [e664b36d] lock acquired. Target: gemini_general | Profile: Profile 6
+2026-04-29 16:59:59,884 [INFO] BNP: [BRIDGE] Profile-matched dispatch: profile='Profile 6', target='gemini'
+2026-04-29 16:59:59,884 [INFO] BNP: [BRIDGE] Payload dispatched → ('127.0.0.1', 55097) [Target: gemini | Profile: Profile 6]
+2026-04-29 16:59:59,919 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 16:59:59,919 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 16:59:59,919 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 16:59:59,920 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 17:00:00,450 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:00,493 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 17:00:00,863 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 17:00:01,063 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 17:00:01,819 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:00:01,899 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:01,901 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:01,903 [INFO] BNP: [BRIDGE] Partial update received for request e664b36d-de36-46be-85e3-7703bd681a4e
+2026-04-29 17:00:01,905 [INFO] BNP: [RESPONSE] AI response received from gemini (5 chars)
+2026-04-29 17:00:01,917 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:01,919 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:01,933 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:01,934 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:01,948 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:01,950 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:02,013 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:02,016 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:02,045 [INFO] BNP: [BRIDGE] Partial update received for request e664b36d-de36-46be-85e3-7703bd681a4e
+2026-04-29 17:00:02,046 [INFO] BNP: [RESPONSE] AI response received from gemini (149 chars)
+2026-04-29 17:00:02,094 [INFO] BNP: [BRIDGE] Partial update received for request e664b36d-de36-46be-85e3-7703bd681a4e
+2026-04-29 17:00:02,094 [INFO] BNP: [RESPONSE] AI response received from gemini (162 chars)
+2026-04-29 17:00:02,366 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:02,481 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:02,544 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:04,114 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Stability reached. Finalizing capture...
+2026-04-29 17:00:04,115 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Stability reached. Finalizing capture...
+2026-04-29 17:00:04,272 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 17:00:04,273 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 17:00:04,731 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Main Copy button did not yield clipboard data.
+2026-04-29 17:00:04,735 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Main Copy button did not yield clipboard data.
+2026-04-29 17:00:04,738 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Trying code block copy button...
+2026-04-29 17:00:04,738 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Trying code block copy button...
+2026-04-29 17:00:05,578 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 17:00:05,581 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 17:00:05,581 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 17:00:05,583 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 17:00:05,583 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Starting greedy image scan...
+2026-04-29 17:00:05,584 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Starting greedy image scan...
+2026-04-29 17:00:06,084 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Scan completed. Success: false (0 imgs)
+2026-04-29 17:00:06,086 [INFO] BNP: [BRIDGE_LOG] [Gemini] [e664b36d] Scan completed. Success: false (0 imgs)
+2026-04-29 17:00:06,088 [INFO] BNP: [BRIDGE] Final response received for request e664b36d-de36-46be-85e3-7703bd681a4e
+2026-04-29 17:00:06,088 [INFO] BNP: [RESPONSE] AI response received from gemini (162 chars)
+2026-04-29 17:00:06,089 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [e664b36d] received response.
+2026-04-29 17:00:06,148 [INFO] BNP: [BRIDGE_EXEC] [Execute] Text=162 chars, Suggestions=0, Images=0, Files=0, Audio=no
+2026-04-29 17:00:06,149 [INFO] BNP: [ANALYZE] Batch Execution [1/1]: desktop_tools.screenshot
+2026-04-29 17:00:06,174 [INFO] BNP: [TGPT_ORCH] Asking TGPT for advice on failed tool 'desktop_tools.screenshot'...
+2026-04-29 17:00:06,641 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:06,678 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 17:00:06,914 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:08,873 [INFO] BNP: [TGPT_ORCH] TGPT successfully generated error recovery advice.
+2026-04-29 17:00:08,873 [INFO] BNP: [ANALYZE] Adaptive Loop: Re-dispatching iteration 2 (errors: 1/1)...
+2026-04-29 17:00:08,873 [INFO] BNP: [LAYER_3] BridgeExecutor: Dispatch to target gemini_general
+2026-04-29 17:00:08,874 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Profile 'Profile 6' confirmed connected for target 'gemini_general'. Proceeding.
+2026-04-29 17:00:08,874 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [fbc4b2ff] queued. Waiting for browser lock...
+2026-04-29 17:00:08,875 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [fbc4b2ff] lock acquired. Target: gemini_general | Profile: Profile 6
+2026-04-29 17:00:08,875 [INFO] BNP: [BRIDGE] Profile-matched dispatch: profile='Profile 6', target='gemini'
+2026-04-29 17:00:08,875 [INFO] BNP: [BRIDGE] Payload dispatched → ('127.0.0.1', 55097) [Target: gemini | Profile: Profile 6]
+2026-04-29 17:00:08,898 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 17:00:08,899 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 17:00:08,899 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 17:00:08,899 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 17:00:09,349 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:09,381 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 17:00:11,112 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,114 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,116 [INFO] BNP: [BRIDGE] Partial update received for request fbc4b2ff-5e98-4290-a775-e24c6fc254f5
+2026-04-29 17:00:11,116 [INFO] BNP: [RESPONSE] AI response received from gemini (11 chars)
+2026-04-29 17:00:11,131 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,131 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,143 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,144 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,160 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,161 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,200 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,203 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,206 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,207 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:11,236 [INFO] BNP: [BRIDGE] Partial update received for request fbc4b2ff-5e98-4290-a775-e24c6fc254f5
+2026-04-29 17:00:11,237 [INFO] BNP: [RESPONSE] AI response received from gemini (161 chars)
+2026-04-29 17:00:11,558 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:11,664 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:12,037 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:00:12,611 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:12,613 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:12,616 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:12,618 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:12,654 [INFO] BNP: [BRIDGE] Partial update received for request fbc4b2ff-5e98-4290-a775-e24c6fc254f5
+2026-04-29 17:00:12,655 [INFO] BNP: [RESPONSE] AI response received from gemini (161 chars)
+2026-04-29 17:00:13,669 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Stability reached. Finalizing capture...
+2026-04-29 17:00:13,670 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Stability reached. Finalizing capture...
+2026-04-29 17:00:13,833 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 17:00:13,836 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 17:00:14,312 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Main Copy button did not yield clipboard data.
+2026-04-29 17:00:14,314 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Main Copy button did not yield clipboard data.
+2026-04-29 17:00:14,317 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Trying code block copy button...
+2026-04-29 17:00:14,318 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Trying code block copy button...
+2026-04-29 17:00:15,176 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 17:00:15,178 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 17:00:15,180 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 17:00:15,180 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 17:00:15,181 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Starting greedy image scan...
+2026-04-29 17:00:15,181 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Starting greedy image scan...
+2026-04-29 17:00:15,684 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Scan completed. Success: false (0 imgs)
+2026-04-29 17:00:15,686 [INFO] BNP: [BRIDGE_LOG] [Gemini] [fbc4b2ff] Scan completed. Success: false (0 imgs)
+2026-04-29 17:00:15,688 [INFO] BNP: [BRIDGE] Final response received for request fbc4b2ff-5e98-4290-a775-e24c6fc254f5
+2026-04-29 17:00:15,689 [INFO] BNP: [RESPONSE] AI response received from gemini (161 chars)
+2026-04-29 17:00:15,689 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [fbc4b2ff] received response.
+2026-04-29 17:00:15,726 [INFO] BNP: [BRIDGE_EXEC] [Execute] Text=161 chars, Suggestions=0, Images=0, Files=0, Audio=no
+2026-04-29 17:00:15,727 [INFO] BNP: [ANALYZE] Batch Execution [1/1]: desktop_tools.screenshot
+2026-04-29 17:00:15,750 [INFO] BNP: [TGPT_ORCH] Asking TGPT for advice on failed tool 'desktop_tools.screenshot'...
+2026-04-29 17:00:16,175 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:16,231 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 17:00:16,621 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:22,245 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:00:32,460 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:00:38,753 [INFO] BNP: [TGPT_ORCH] TGPT successfully generated error recovery advice.
+2026-04-29 17:00:38,753 [INFO] BNP: [ANALYZE] Adaptive Loop: Re-dispatching iteration 3 (errors: 2/2)...
+2026-04-29 17:00:38,753 [INFO] BNP: [LAYER_3] BridgeExecutor: Dispatch to target gemini_general
+2026-04-29 17:00:38,754 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Profile 'Profile 6' confirmed connected for target 'gemini_general'. Proceeding.
+2026-04-29 17:00:38,754 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [3c5a7c36] queued. Waiting for browser lock...
+2026-04-29 17:00:38,754 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [3c5a7c36] lock acquired. Target: gemini_general | Profile: Profile 6
+2026-04-29 17:00:38,754 [INFO] BNP: [BRIDGE] Profile-matched dispatch: profile='Profile 6', target='gemini'
+2026-04-29 17:00:38,756 [INFO] BNP: [BRIDGE] Payload dispatched → ('127.0.0.1', 55097) [Target: gemini | Profile: Profile 6]
+2026-04-29 17:00:38,778 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 17:00:38,778 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 17:00:38,779 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 17:00:38,779 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 17:00:39,634 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:40,433 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 17:00:41,274 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:41,275 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:41,279 [INFO] BNP: [BRIDGE] Partial update received for request 3c5a7c36-2755-4e64-9016-96655d5139ed
+2026-04-29 17:00:41,279 [INFO] BNP: [RESPONSE] AI response received from gemini (11 chars)
+2026-04-29 17:00:41,316 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:41,317 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:41,346 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:41,346 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:41,379 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:41,379 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:41,384 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:41,385 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:41,415 [INFO] BNP: [BRIDGE] Partial update received for request 3c5a7c36-2755-4e64-9016-96655d5139ed
+2026-04-29 17:00:41,416 [INFO] BNP: [RESPONSE] AI response received from gemini (131 chars)
+2026-04-29 17:00:41,706 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:41,839 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:42,721 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:00:42,792 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:42,793 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:42,796 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:42,797 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:42,841 [INFO] BNP: [BRIDGE] Partial update received for request 3c5a7c36-2755-4e64-9016-96655d5139ed
+2026-04-29 17:00:42,841 [INFO] BNP: [RESPONSE] AI response received from gemini (131 chars)
+2026-04-29 17:00:43,858 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Stability reached. Finalizing capture...
+2026-04-29 17:00:43,859 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Stability reached. Finalizing capture...
+2026-04-29 17:00:44,017 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 17:00:44,019 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 17:00:44,495 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Main Copy button did not yield clipboard data.
+2026-04-29 17:00:44,498 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Main Copy button did not yield clipboard data.
+2026-04-29 17:00:44,500 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Trying code block copy button...
+2026-04-29 17:00:44,500 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Trying code block copy button...
+2026-04-29 17:00:45,348 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 17:00:45,350 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 17:00:45,355 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 17:00:45,356 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 17:00:45,356 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Starting greedy image scan...
+2026-04-29 17:00:45,357 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Starting greedy image scan...
+2026-04-29 17:00:45,857 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Scan completed. Success: false (0 imgs)
+2026-04-29 17:00:45,858 [INFO] BNP: [BRIDGE_LOG] [Gemini] [3c5a7c36] Scan completed. Success: false (0 imgs)
+2026-04-29 17:00:45,861 [INFO] BNP: [BRIDGE] Final response received for request 3c5a7c36-2755-4e64-9016-96655d5139ed
+2026-04-29 17:00:45,861 [INFO] BNP: [RESPONSE] AI response received from gemini (131 chars)
+2026-04-29 17:00:45,862 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [3c5a7c36] received response.
+2026-04-29 17:00:45,904 [INFO] BNP: [BRIDGE_EXEC] [Execute] Text=131 chars, Suggestions=0, Images=0, Files=0, Audio=no
+2026-04-29 17:00:45,905 [INFO] BNP: [ANALYZE] Batch Execution [1/1]: desktop_tools.screenshot
+2026-04-29 17:00:46,359 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:46,856 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 17:00:49,765 [INFO] BNP: [ANALYZE] Adaptive Loop: Re-dispatching iteration 4 (errors: 0/2)...
+2026-04-29 17:00:49,766 [INFO] BNP: [LAYER_3] BridgeExecutor: Dispatch to target gemini_general
+2026-04-29 17:00:49,766 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Profile 'Profile 6' confirmed connected for target 'gemini_general'. Proceeding.
+2026-04-29 17:00:49,766 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [acf33566] queued. Waiting for browser lock...
+2026-04-29 17:00:49,767 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [acf33566] lock acquired. Target: gemini_general | Profile: Profile 6
+2026-04-29 17:00:49,768 [INFO] BNP: [BRIDGE] Profile-matched dispatch: profile='Profile 6', target='gemini'
+2026-04-29 17:00:49,768 [INFO] BNP: [BRIDGE] Payload dispatched → ('127.0.0.1', 55097) [Target: gemini | Profile: Profile 6]
+2026-04-29 17:00:49,794 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 17:00:49,794 [INFO] BNP: [BRIDGE_LOG] [Gemini] Pre-seeded image tracker with 2 existing images to prevent leakages.
+2026-04-29 17:00:49,795 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 17:00:49,795 [INFO] BNP: [BRIDGE_LOG] [Gemini] [SPEED] Text-only message. Injecting fast (2s ceiling).
+2026-04-29 17:00:50,234 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:50,283 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 17:00:50,632 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 17:00:51,810 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,813 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,815 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,815 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,816 [INFO] BNP: [BRIDGE] Partial update received for request acf33566-2b43-4597-872b-25fbbc1123da
+2026-04-29 17:00:51,816 [INFO] BNP: [RESPONSE] AI response received from gemini (3 chars)
+2026-04-29 17:00:51,833 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,833 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,833 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,833 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,850 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,852 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,853 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,856 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,875 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,876 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,877 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,878 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,909 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,913 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,914 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,915 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,917 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,918 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] Response too short, attempting wide-area extraction...
+2026-04-29 17:00:51,919 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,922 [INFO] BNP: [BRIDGE_LOG] [Gemini] [DEBUG] No text found, trying code-block only extraction...
+2026-04-29 17:00:51,952 [INFO] BNP: [BRIDGE] Partial update received for request acf33566-2b43-4597-872b-25fbbc1123da
+2026-04-29 17:00:51,952 [INFO] BNP: [RESPONSE] AI response received from gemini (146 chars)
+2026-04-29 17:00:52,251 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:52,967 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:00:53,011 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:54,988 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] Stability reached. Finalizing capture...
+2026-04-29 17:00:54,989 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] Stability reached. Finalizing capture...
+2026-04-29 17:00:55,141 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 17:00:55,142 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] High-Fidelity Mode: Simulating official Copy action...
+2026-04-29 17:00:55,834 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] Main Copy button did not yield clipboard data.
+2026-04-29 17:00:55,837 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] Main Copy button did not yield clipboard data.
+2026-04-29 17:00:55,837 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 17:00:55,839 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] All copy strategies exhausted. Falling back to DOM text.
+2026-04-29 17:00:55,840 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 17:00:55,842 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] Warning: Using fallback DOM text. Style might be degraded.
+2026-04-29 17:00:55,843 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] Starting greedy image scan...
+2026-04-29 17:00:55,844 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] Starting greedy image scan...
+2026-04-29 17:00:56,343 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] Scan completed. Success: false (0 imgs)
+2026-04-29 17:00:56,344 [INFO] BNP: [BRIDGE_LOG] [Gemini] [acf33566] Scan completed. Success: false (0 imgs)
+2026-04-29 17:00:56,345 [INFO] BNP: [BRIDGE] Final response received for request acf33566-2b43-4597-872b-25fbbc1123da
+2026-04-29 17:00:56,346 [INFO] BNP: [RESPONSE] AI response received from gemini (146 chars)
+2026-04-29 17:00:56,346 [INFO] BNP: [BRIDGE_EXEC] [Dispatch] Request [acf33566] received response.
+2026-04-29 17:00:56,391 [INFO] BNP: [BRIDGE_EXEC] [Execute] Text=146 chars, Suggestions=0, Images=0, Files=0, Audio=no
+2026-04-29 17:00:56,392 [INFO] BNP: [ANALYZE] Task Complete after 5 iterations (2 errors encountered).
+2026-04-29 17:00:56,392 [INFO] BNP: [RENDERER] Rendering input: 146 chars | Text preview: The screenshot has been captured and saved to D:\B...
+2026-04-29 17:00:56,393 [INFO] BNP: [RENDERER] Rendering complete: 146 chars
+2026-04-29 17:00:56,393 [INFO] BNP: [RETURN] Rendered response (146 chars) → TELEGRAM
+2026-04-29 17:00:56,850 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 200 OK"
+2026-04-29 17:00:57,136 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/editMessageText "HTTP/1.1 400 Bad Request"
+2026-04-29 17:00:57,225 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/deleteMessage "HTTP/1.1 200 OK"
+2026-04-29 17:00:57,633 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/sendMessage "HTTP/1.1 200 OK"
+2026-04-29 17:01:03,291 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:01:13,519 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:01:23,820 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:01:34,049 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:01:44,280 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:01:54,589 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:02:04,804 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:02:15,021 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot[REDACTED_TOKEN]/getUpdates "HTTP/1.1 200 OK"
+2026-04-29 17:02:25,231 [INFO] httpx:

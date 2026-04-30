@@ -217,33 +217,18 @@ class TelegramBot:
         hud_state = {
             "start_ts": time.time(),
             "last_edit_ts": 0,
-            "status": "Initializing...",
-            "logs": [f"📡 Connection established via {source.upper()}"],
-            "streaming": "",
-            "iteration": 1,
-            "success": 0,
-            "error": 0
+            "layer": "L1 Intake",
+            "animation_idx": 0
         }
 
         async def _update_hud_logic(force=False):
             now = time.time()
-            if not force and now - hud_state["last_edit_ts"] < 2.0: return
+            if not force and now - hud_state["last_edit_ts"] < 1.5: return
             
-            elapsed = int(now - hud_state["start_ts"])
-            log_block = "\n".join(hud_state["logs"][-3:]) # Slimmer for standalone notifications
+            hud_state["animation_idx"] = (hud_state["animation_idx"] + 1) % 4
+            dots = "." * hud_state["animation_idx"]
             
-            text = (
-                f"🔔 <b>HUD: {source.upper()} → {target.upper()}</b>\n"
-                f"<code>────────────────────────────</code>\n"
-                f"⏱ <b>Elapsed:</b> <code>{elapsed}s</code> | 🔄 <b>Iter:</b> <code>{hud_state['iteration']}</code>\n"
-                f"🛰 <b>Status:</b> <i>{hud_state['status']}</i>\n"
-                f"<code>────────────────────────────</code>\n"
-                f"📜 <b>Log:</b>\n<pre>{log_block}</pre>"
-            )
-            
-            if hud_state["streaming"]:
-                stream_tail = hud_state["streaming"][-150:].replace("<", "&lt;").replace(">", "&gt;")
-                text += f"\n\n💬 <b>AI Stream:</b>\n<pre>{stream_tail}...</pre>"
+            text = f"⚡ <b>{source.upper()} → {target.upper()}</b> | <b>[{hud_state['layer']}]</b> <i>Processing{dots}</i>"
 
             try:
                 await self.app.bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text=text, parse_mode="HTML")
@@ -261,22 +246,18 @@ class TelegramBot:
                 return
 
             if isinstance(chunk, str):
-                hud_state["streaming"] += chunk
-                hud_state["status"] = "AI is writing..."
                 asyncio.create_task(_update_hud_logic())
             elif isinstance(chunk, dict) and "status" in chunk:
                 status_text = chunk["status"]
-                hud_state["logs"].append(f"➡ {status_text}")
-                
-                if "✓" in status_text or "OK" in status_text:
-                    hud_state["success"] += 1
-                if "❌" in status_text or "Error" in status_text:
-                    hud_state["error"] += 1
-                    hud_state["status"] = "❌ Error encountered"
-                
-                it_match = re.search(r"iter (\d+)", status_text, re.IGNORECASE)
-                if it_match:
-                    hud_state["iteration"] = int(it_match.group(1))
+                t = status_text.upper()
+                if "INTAKE" in t or ("LAYER_1" in t and "1.5" not in t): hud_state["layer"] = "L1 Intake"
+                elif "TGPT" in t or "LAYER_1.5" in t: hud_state["layer"] = "L1.5 TGPT"
+                elif "PLANNER" in t: hud_state["layer"] = "L2 Plan"
+                elif "BRIDGE" in t or "LAYER_3" in t: hud_state["layer"] = "L3 Bridge"
+                elif "ANALYZE" in t or "LAYER_4" in t: hud_state["layer"] = "L4 Analyze"
+                elif "MCP" in t or "SCHEMA" in t or "LAYER_5" in t: hud_state["layer"] = "L5 MCP"
+                elif "RENDERER" in t or "LAYER_6" in t: hud_state["layer"] = "L6 Render"
+                elif "RETURN" in t or "LAYER_7" in t: hud_state["layer"] = "L7 Return"
                 
                 asyncio.create_task(_update_hud_logic())
 
@@ -317,7 +298,7 @@ class TelegramBot:
         user_id_str = str(user_id_int)
         
         if ALLOWED_TELEGRAM_USERS and user_id_int not in ALLOWED_TELEGRAM_USERS:
-            await update.message.reply_text("⛔ <b>Access Denied:</b> You are not on the authorized user list.", parse_mode="HTML")
+            await update.message.reply_text("⛔ <b>Access Denied:</b> Sorry, you are not an admin.", parse_mode="HTML")
             return
 
         cmd = update.message.text
@@ -452,37 +433,18 @@ class TelegramBot:
         hud_state = {
             "start_ts": time.time(),
             "last_edit_ts": 0,
-            "status": "Initializing...",
-            "logs": ["📡 Connecting to Core Pipeline..."],
-            "streaming": "",
-            "iteration": 1,
-            "success": 0,
-            "error": 0
+            "layer": "L1 Intake",
+            "animation_idx": 0
         }
 
         async def _update_hud(force=False):
             now = time.time()
             if not force and now - hud_state["last_edit_ts"] < 1.5: return
             
-            elapsed = int(now - hud_state["start_ts"])
-            log_block = "\n".join(hud_state["logs"][-5:])
+            hud_state["animation_idx"] = (hud_state["animation_idx"] + 1) % 4
+            dots = "." * hud_state["animation_idx"]
             
-            # Robust mobile-friendly design
-            text = (
-                f"⚡ <b>BANE-V4 PIPELINE ACTIVE</b>\n"
-                f"<code>────────────────────────────</code>\n"
-                f"⏱ <b>Elapsed:</b> <code>{elapsed}s</code>\n"
-                f"🧠 <b>Engine:</b>  <code>{target.upper()}</code>\n"
-                f"🛰 <b>Status:</b>  <i>{hud_state['status']}</i>\n"
-                f"<code>────────────────────────────</code>\n"
-                f"🔄 <b>Iter:</b> <code>{hud_state['iteration']}</code> | ✅ <b>OK:</b> <code>{hud_state['success']}</code> | ❌ <b>Err:</b> <code>{hud_state['error']}</code>\n"
-                f"<code>────────────────────────────</code>\n"
-                f"📜 <b>Trace Log:</b>\n<pre>{log_block}</pre>"
-            )
-            
-            if hud_state["streaming"]:
-                stream_tail = hud_state["streaming"][-250:].replace("<", "&lt;").replace(">", "&gt;")
-                text += f"\n\n💬 <b>AI Stream:</b>\n<pre>{stream_tail}...</pre>"
+            text = f"⚡ <b>[{hud_state['layer']}]</b> <i>Processing{dots}</i>"
 
             try:
                 await progress_msg.edit_text(text, parse_mode="HTML")
@@ -492,26 +454,21 @@ class TelegramBot:
         # Handle Transcription in background if needed
         voice_files = [f for f in file_paths if "audio_" in f]
         if voice_files:
-            hud_state["status"] = "Transcribing Voice..."
-            hud_state["logs"].append("🎙 Transcription engine warming up...")
+            hud_state["layer"] = "Voice Mode"
             await _update_hud(force=True)
             
             for vf in voice_files:
                 try:
-                    # transcription logic simplified for brevity but functional
                     model = get_whisper_model()
                     segs, _ = model.transcribe(vf)
                     txt = " ".join([s.text for s in segs])
                     if txt:
                         message_text += f"\n\n🎙 [VOICE TRANSCRIPT]: {txt}"
-                        hud_state["logs"].append("✅ Voice transcribed successfully.")
                 except Exception as e:
                     log_error("WHISPER_ERROR", e)
-                    hud_state["logs"].append("❌ Transcription failed.")
 
         # Core Request
-        hud_state["status"] = "Thinking..."
-        hud_state["logs"].append(f"🚀 Sending request to {target.upper()}...")
+        hud_state["layer"] = "L1 Intake"
         await _update_hud(force=True)
 
         try:
@@ -523,25 +480,19 @@ class TelegramBot:
                     return
 
                 if isinstance(chunk, str):
-                    hud_state["streaming"] += chunk
-                    hud_state["status"] = "AI is writing..."
                     asyncio.create_task(_update_hud())
                 elif isinstance(chunk, dict) and "status" in chunk:
                     status_text = chunk["status"]
-                    hud_state["logs"].append(f"➡ {status_text}")
+                    t = status_text.upper()
                     
-                    # Heuristic parsing for counters
-                    if "✓" in status_text or "OK" in status_text:
-                        hud_state["success"] += 1
-                    if "❌" in status_text or "Error" in status_text:
-                        hud_state["error"] += 1
-                    
-                    it_match = re.search(r"iter (\d+)", status_text, re.IGNORECASE)
-                    if it_match:
-                        hud_state["iteration"] = int(it_match.group(1))
-                    elif "[L3]" in status_text and "Connecting" in status_text:
-                        # Initial L3 call
-                        pass 
+                    if "INTAKE" in t or ("LAYER_1" in t and "1.5" not in t): hud_state["layer"] = "L1 Intake"
+                    elif "TGPT" in t or "LAYER_1.5" in t: hud_state["layer"] = "L1.5 TGPT"
+                    elif "PLANNER" in t: hud_state["layer"] = "L2 Plan"
+                    elif "BRIDGE" in t or "LAYER_3" in t: hud_state["layer"] = "L3 Bridge"
+                    elif "ANALYZE" in t or "LAYER_4" in t: hud_state["layer"] = "L4 Analyze"
+                    elif "MCP" in t or "SCHEMA" in t or "LAYER_5" in t: hud_state["layer"] = "L5 MCP"
+                    elif "RENDERER" in t or "LAYER_6" in t: hud_state["layer"] = "L6 Render"
+                    elif "RETURN" in t or "LAYER_7" in t: hud_state["layer"] = "L7 Return"
 
                     asyncio.create_task(_update_hud())
 
@@ -557,15 +508,22 @@ class TelegramBot:
                 on_partial=on_partial
             )
 
-            # Cleanup HUD
-            try: await progress_msg.delete()
-            except: pass
+            # Cleanup HUD (aggressive — try multiple times)
+            for _ in range(3):
+                try:
+                    await progress_msg.delete()
+                    break
+                except Exception:
+                    await asyncio.sleep(0.5)
 
             # 4. Dispatch final response
             await self.adapter.deliver_response(user_id, res)
 
         except Exception as e:
             log_error("TELEGRAM_PIPELINE", e)
+            try:
+                await progress_msg.delete()
+            except: pass
             try:
                 await progress_msg.edit_text(f"❌ <b>Pipeline Error:</b>\n<code>{str(e)}</code>", parse_mode="HTML")
             except:

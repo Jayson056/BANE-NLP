@@ -163,6 +163,22 @@ class MessengerBot:
                 await resp.release()
         except: pass
 
+    async def _delete_messenger_message(self, message_id: str) -> None:
+        """Delete a bot-sent message from the conversation using the Graph API."""
+        if not self.session or not message_id: return
+        # Strategy 1: Direct DELETE on the message ID
+        url = f"https://graph.facebook.com/v21.0/{message_id}?access_token={MESSENGER_ACCESS_TOKEN}"
+        try:
+            async with self.session.delete(url, timeout=10) as resp:
+                status = resp.status
+                body = await resp.text()
+                if status == 200:
+                    log_event("MESSENGER_HUD", f"Deleted HUD message: {message_id[:30]}...")
+                else:
+                    log_event("MESSENGER_HUD", f"Delete failed ({status}): {body[:150]}")
+        except Exception as e:
+            log_error("MESSENGER_HUD_DELETE", e)
+
     async def _send_messenger_image(self, recipient_id: str, img_data: str) -> None:
         if not self.session: return
         url = f"https://graph.facebook.com/v21.0/me/messages?access_token={MESSENGER_ACCESS_TOKEN}"
@@ -199,33 +215,40 @@ class MessengerBot:
         if not self.session: return None
         url = f"https://graph.facebook.com/v21.0/me/messages?access_token={MESSENGER_ACCESS_TOKEN}"
         
-        max_chunk_size = 1900
+        # Facebook Messenger counts message length using UTF-16 code units.
+        # Unicode bold chars (U+1D5D4+) are supplementary plane → 2 UTF-16 units each.
+        # Using Python len() would undercount, causing Messenger to silently truncate.
+        def _utf16_len(s: str) -> int:
+            """Count UTF-16 code units (what Facebook Messenger uses for length limits)."""
+            return len(s.encode('utf-16-le')) // 2
+
+        max_chunk_size = 1800  # Safe limit in UTF-16 units (Messenger max is 2000)
         chunks = []
         current_chunk = ""
         
         for paragraph in text.split('\n'):
-            if len(paragraph) > max_chunk_size:
+            if _utf16_len(paragraph) > max_chunk_size:
                 if current_chunk.strip():
                     chunks.append(current_chunk.strip())
                     current_chunk = ""
                 
                 words = paragraph.split(' ')
                 for word in words:
-                    while len(word) > max_chunk_size:
+                    while _utf16_len(word) > max_chunk_size:
                         if current_chunk.strip():
                             chunks.append(current_chunk.strip())
                             current_chunk = ""
-                        chunks.append(word[:max_chunk_size])
-                        word = word[max_chunk_size:]
+                        chunks.append(word[:max_chunk_size // 2])  # Safe substring
+                        word = word[max_chunk_size // 2:]
                         
-                    if len(current_chunk) + len(word) + 1 > max_chunk_size:
+                    if _utf16_len(current_chunk) + _utf16_len(word) + 1 > max_chunk_size:
                         chunks.append(current_chunk.strip())
                         current_chunk = word + " "
                     else:
                         current_chunk += word + " "
                 current_chunk = current_chunk.rstrip() + "\n"
             else:
-                if len(current_chunk) + len(paragraph) + 1 > max_chunk_size:
+                if _utf16_len(current_chunk) + _utf16_len(paragraph) + 1 > max_chunk_size:
                     chunks.append(current_chunk.strip())
                     current_chunk = paragraph + "\n"
                 else:
@@ -235,7 +258,7 @@ class MessengerBot:
             chunks.append(current_chunk.strip())
             
         if not chunks and text:
-            chunks = [text[:max_chunk_size]]
+            chunks = [text[:max_chunk_size // 2]]
 
         first_mid = None
         for i, chunk in enumerate(chunks):
@@ -389,26 +412,50 @@ class MessengerBot:
                 # Catch-all for voice/audio that failed or yielded no transcript
                 message_text = "🎙️ (Voice/Media message received)"
 
-        # Simplified Thinking status for Messenger
-        asyncio.create_task(self._send_messenger_message(sender_id, "Thinking..."))
-        asyncio.create_task(self._send_sender_action(sender_id, "typing_on"))
+        # ── Messenger Lightweight HUD ──
+        # Facebook does NOT allow pages to delete messages without restricted permissions.
+        # Instead of sending undeletable status messages, we use:
+        #   1. A reaction emoji on the user's message (instant acknowledgment)
+        #   2. A persistent typing indicator (refreshed every 4s)
+        #   3. The Telegram standalone HUD for detailed monitoring
+        import time as _time
+
+        await self._send_sender_action(sender_id, "typing_on")
+
+        # ── Typing Keepalive Task ──
+        _hud_done = asyncio.Event()
+
+        async def _typing_keepalive():
+            """Refreshes the Messenger typing indicator every 4 seconds."""
+            while not _hud_done.is_set():
+                try:
+                    await self._send_sender_action(sender_id, "typing_on")
+                except Exception:
+                    pass
+                try:
+                    await asyncio.wait_for(_hud_done.wait(), timeout=4.0)
+                    break
+                except asyncio.TimeoutError:
+                    pass
+
+        typing_task = asyncio.create_task(_typing_keepalive())
 
         # ── Cross-Platform Notification (Telegram HUD) ──
-        on_partial = None
+        telegram_on_partial = None
         if self.core.telegram_bot:
             from config import ALLOWED_TELEGRAM_USERS
             for owner_id in ALLOWED_TELEGRAM_USERS:
-                on_partial = await self.core.telegram_bot.create_standalone_hud(str(owner_id), "Messenger", target)
-                break 
+                telegram_on_partial = await self.core.telegram_bot.create_standalone_hud(str(owner_id), "Messenger", target)
+                break
 
         try:
             res_bundle = await self.core.process_request(
-                user_id=sender_id, 
-                message=message_text, 
-                target=target, 
-                source="Messenger", 
+                user_id=sender_id,
+                message=message_text,
+                target=target,
+                source="Messenger",
                 file_paths=file_paths,
-                on_partial=on_partial,
+                on_partial=telegram_on_partial,
                 generate_voice=self.router.get_voice_mode(sender_id),
                 voice_name=self.router.get_voice(sender_id),
                 chrome_profile=self.router.get_profile(sender_id) or ""
@@ -416,18 +463,26 @@ class MessengerBot:
             for f in file_paths:
                 if os.path.exists(f): os.remove(f)
 
-            # Signal HUD completion
-            if on_partial: await on_partial("__DONE__")
+            # Signal completion
+            _hud_done.set()
+            if telegram_on_partial:
+                await telegram_on_partial("__DONE__")
 
-            # 4. Dispatch final response using the new unified method
+            # Dispatch final response — clean chat, no HUD clutter
             await self.adapter.deliver_response(sender_id, res_bundle)
 
         except Exception as e:
             log_error("MESSENGER_CORE", e)
-            await self._send_messenger_message(sender_id, f"❌ Error: {str(e)}")
+            _hud_done.set()
+            await self._send_messenger_message(sender_id, f"❌ Pipeline Error: {str(e)[:200]}")
 
 
     async def _handle_command(self, sender_id: str, cmd: str) -> None:
+        from config import ALLOWED_MESSENGER_USERS
+        if ALLOWED_MESSENGER_USERS and sender_id not in ALLOWED_MESSENGER_USERS:
+            await self._send_messenger_message(sender_id, "⛔ Access Denied: Sorry, you are not an admin.")
+            return
+
         handled = await self.router.dispatch_command(
             cmd=cmd,
             adapter=self.adapter,
@@ -451,7 +506,7 @@ class MessengerBot:
             return ''.join(chr(ord(c)-ord('A')+0x1D608) if 'A'<=c<='Z' else chr(ord(c)-ord('a')+0x1D622) if 'a'<=c<='z' else c for c in t)
             
         text = re.sub(r'\*\*(?!\s)([^\n]+?)(?<!\s)\*\*', to_bold, text)
-        text = re.sub(r'__(?!\s)([^\n]+?)(?<!\s)__', to_bold, text)
+        text = re.sub(r'(?<![\w])__(?!\s)([^\n]+?)(?<!\s)__(?![\w])', to_bold, text)
         text = re.sub(r'\*(?!\s)([^\n\*]+?)(?<!\s)\*', to_italic, text)
         text = re.sub(r'_(?!\s)([^\n_]+?)(?<!\s)_', to_italic, text)
 
@@ -480,14 +535,22 @@ class MessengerBot:
             if re.match(r'^#{1,4}\s+', stripped):
                 continue
             # ALL-CAPS headers (like "CONCEPCION UNO", "CORE IDENTITY")
-            if stripped == stripped.upper() and len(stripped) > 3 and len(stripped.split()) <= 8:
+            # Guard: require actual ASCII uppercase letters — Unicode bold chars satisfy
+            # s == s.upper() trivially, so we must check for real ASCII A-Z presence.
+            ascii_upper_count = sum(1 for c in stripped if 'A' <= c <= 'Z')
+            if (ascii_upper_count >= 3
+                    and stripped == stripped.upper()
+                    and len(stripped) > 3
+                    and len(stripped.split()) <= 8):
                 if not any(c in stripped for c in ['→', '.', ',', '!', '?']):
                     continue
-            # Title Case headers — ONLY short clean titles with no commas/apostrophes/periods
-            if len(stripped) < 40 and not any(c in stripped for c in ['.', ',', '!', '?', "'", '"', '→', '•', ':']):
+            # Title Case headers — ONLY multi-word clean titles with no commas/apostrophes/periods
+            # Requires 2+ words to avoid stripping single-word data items (folder names, filenames, etc.)
+            # Only check words that start with ASCII letters (not Unicode bold)
+            if len(stripped) < 40 and not any(c in stripped for c in ['.', ',', '!', '?', "'", '"', '→', '•', ':', '_', '-']):
                 words = stripped.split()
-                if 1 <= len(words) <= 4:
-                    cap_words = [w for w in words if w[0].isupper() or w.lower() in ('&', 'and', 'of', 'the', 'in', 'for', 'ng', 'sa', 'at', 'mga')]
+                if 2 <= len(words) <= 4:
+                    cap_words = [w for w in words if ('A' <= w[0] <= 'Z') or w.lower() in ('&', 'and', 'of', 'the', 'in', 'for', 'ng', 'sa', 'at', 'mga')]
                     if len(cap_words) == len(words):  # ALL words must be capitalized or connectors
                         continue
 
@@ -793,10 +856,89 @@ class MessengerBot:
                 log_error("PORTFOLIO_TTS_ERROR", e)
                 return web.json_response({"error": str(e)}, status=500)
 
+        # ── Dashboard API Endpoints ─────────────────────────────────────────────
+        from core.logger import (
+            dashboard_subscribe, dashboard_unsubscribe,
+            dashboard_get_state, dashboard_get_recent_events
+        )
+
+        async def dashboard_events_handler(request):
+            """SSE endpoint for real-time dashboard event streaming."""
+            response = web.StreamResponse(
+                status=200,
+                reason='OK',
+                headers={
+                    'Content-Type': 'text/event-stream',
+                    'Cache-Control': 'no-cache',
+                    'Connection': 'keep-alive',
+                    'Access-Control-Allow-Origin': '*',
+                }
+            )
+            await response.prepare(request)
+
+            q = dashboard_subscribe()
+            try:
+                # Send recent events as initial burst
+                recent = dashboard_get_recent_events(50)
+                for evt in recent:
+                    data = json.dumps(evt)
+                    await response.write(f"data: {data}\n\n".encode('utf-8'))
+
+                # Stream new events
+                while True:
+                    try:
+                        evt = await asyncio.wait_for(q.get(), timeout=15.0)
+                        data = json.dumps(evt)
+                        await response.write(f"data: {data}\n\n".encode('utf-8'))
+                    except asyncio.TimeoutError:
+                        # Send keepalive ping
+                        await response.write(b": keepalive\n\n")
+                    except (ConnectionResetError, ConnectionAbortedError):
+                        break
+            finally:
+                dashboard_unsubscribe(q)
+            return response
+
+        async def dashboard_status_handler(request):
+            """Return current pipeline state as JSON."""
+            state = dashboard_get_state()
+            return web.json_response(state, headers={
+                'Access-Control-Allow-Origin': '*',
+            })
+
+        async def dashboard_kill_handler(request):
+            """Kill the current active pipeline process."""
+            log_event("DASHBOARD", "⚠️ Kill switch activated from Dashboard!")
+            # Set the kill flag that the engine checks
+            if hasattr(self.core, '_kill_active'):
+                self.core._kill_active = True
+            return web.json_response(
+                {"status": "kill_signal_sent"},
+                headers={'Access-Control-Allow-Origin': '*'}
+            )
+
+        async def dashboard_restart_handler(request):
+            """Restart the BANE-NLP system."""
+            log_event("DASHBOARD", "🔄 System restart triggered from Dashboard!")
+            # Schedule restart after response is sent
+            async def _delayed_restart():
+                await asyncio.sleep(1)
+                import sys
+                os.execv(sys.executable, [sys.executable] + sys.argv)
+            asyncio.create_task(_delayed_restart())
+            return web.json_response(
+                {"status": "restart_scheduled"},
+                headers={'Access-Control-Allow-Origin': '*'}
+            )
+
         app.router.add_get('/webhooks/messenger', get_handler)
         app.router.add_post('/webhooks/messenger', post_handler)
         app.router.add_post('/api/portfolio_query', portfolio_query_handler)
         app.router.add_post('/api/tts', portfolio_tts_handler)
+        app.router.add_get('/api/dashboard/events', dashboard_events_handler)
+        app.router.add_get('/api/dashboard/status', dashboard_status_handler)
+        app.router.add_post('/api/dashboard/kill', dashboard_kill_handler)
+        app.router.add_post('/api/dashboard/restart', dashboard_restart_handler)
 
         runner = web.AppRunner(app)
         await runner.setup()

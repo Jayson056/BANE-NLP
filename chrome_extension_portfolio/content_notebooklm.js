@@ -255,15 +255,20 @@
     actionableInput.value = "";
     actionableInput.textContent = "";
 
-    // 2. Set text directly
-    const success = document.execCommand("insertText", false, text);
+    // ─── ROBUST 3-TIER DOM INJECTION ───
+    const expectedLen = text.length;
 
-    // Fallback if execCommand failed
-    await delay(100);
+    // 1. Try simulated paste event first (Safest for newlines/formatting)
+    const dt = new DataTransfer();
+    dt.setData("text/plain", text);
+    actionableInput.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }));
+    await delay(25);
+
     let currentInputText = (actionableInput.value || actionableInput.textContent || "").trim();
-    if (!success || currentInputText.length < 5) {
-      logMsg("execCommand weak, attempting direct property fallback...");
-      // Force trigger native setter (Angular bypass)
+
+    // 2. Fallback: Direct property mutation if paste failed or was truncated
+    if (currentInputText.length < expectedLen * 0.8) {
+      logMsg("Paste weak/truncated, attempting direct property fallback...");
       const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
         window.HTMLTextAreaElement.prototype, "value"
       )?.set || Object.getOwnPropertyDescriptor(
@@ -277,6 +282,13 @@
         actionableInput.innerText = text;
         actionableInput.textContent = text;
       }
+      await delay(25);
+      currentInputText = (actionableInput.value || actionableInput.textContent || "").trim();
+    }
+
+    // 3. Final Fallback: execCommand (can sometimes truncate at newlines, so we do it last)
+    if (currentInputText.length < expectedLen * 0.8) {
+      document.execCommand("insertText", false, text);
     }
 
     // 4. Send exact comprehensive event streams to fake human typing

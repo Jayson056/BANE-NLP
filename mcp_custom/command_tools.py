@@ -38,15 +38,19 @@ def _sanitize_command(cmd: str) -> str:
     
     return cmd
 
-@mcp_custom_tool(name="command_tools.run_command", description="Run a raw shell command on the host OS. Args: {'command': 'shell_command_here', 'background': false, 'elevated': false}")
-def run_command(command: str = None, background: bool = False, elevated: bool = False, **kwargs) -> str:
+@mcp_custom_tool(name="command_tools.run_command", description="Run a raw shell command on the host OS. Args: {'command': 'shell_command_here', 'cwd': 'optional_working_dir', 'background': false, 'elevated': false}")
+def run_command(command: str = None, cwd: str = None, background: bool = False, elevated: bool = False, **kwargs) -> str:
     if not command:
         return f"❌ Error: No 'command' argument provided. Received args: command={command!r}, extra={kwargs!r}. You MUST pass a 'command' string."
     
     # SAFETY: Sanitize commands that would kill BNP
     command = _sanitize_command(command)
     
-    log_event("MCP", f"Executing shell command (background={background}, elevated={elevated}): {command}")
+    # Validate and resolve cwd if provided
+    if cwd and not os.path.isdir(cwd):
+        return f"❌ Error: Working directory does not exist: {cwd}"
+    
+    log_event("MCP", f"Executing shell command (cwd={cwd}, background={background}, elevated={elevated}): {command}")
     
     # ── BACKGROUND MODE: Fire-and-forget for servers / long-running tasks ──
     if background:
@@ -56,12 +60,14 @@ def run_command(command: str = None, background: bool = False, elevated: bool = 
                 ps_cmd = f'Start-Process cmd -ArgumentList "/C {command.replace(chr(39), chr(34))}" -Verb RunAs -WindowStyle Hidden'
                 subprocess.Popen(
                     ["powershell", "-NoProfile", "-Command", ps_cmd],
+                    cwd=cwd,
                     creationflags=subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP,
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL
                 )
             else:
                 subprocess.Popen(
                     command, shell=True,
+                    cwd=cwd,
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL,
                     creationflags=subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP
                 )
@@ -83,6 +89,7 @@ def run_command(command: str = None, background: bool = False, elevated: bool = 
             result = subprocess.run(
                 ["powershell", "-NoProfile", "-Command", ps_cmd],
                 capture_output=True, text=True, timeout=60,
+                cwd=cwd,
                 creationflags=subprocess.CREATE_NO_WINDOW
             )
             # Try to read the output file
@@ -112,6 +119,7 @@ def run_command(command: str = None, background: bool = False, elevated: bool = 
         process = subprocess.Popen(
             command,
             shell=True,
+            cwd=cwd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             stdin=subprocess.DEVNULL,
@@ -133,7 +141,7 @@ def run_command(command: str = None, background: bool = False, elevated: bool = 
             out_lines = out_str.split('\n')[-50:] if out_str else []
             err_lines = err_str.split('\n')[-50:] if err_str else []
             
-            msg = "Command started successfully (timed out after 30s — process detached to background)."
+            msg = "Command started successfully (timed out after 60s — process detached to background)."
             if out_lines: msg += f"\n\n[STARTUP STDOUT - Last {len(out_lines)} lines]:\n" + "\n".join(out_lines)
             if err_lines: msg += f"\n\n[STARTUP STDERR - Last {len(err_lines)} lines]:\n" + "\n".join(err_lines)
             

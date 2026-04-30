@@ -20,7 +20,7 @@
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const WS_URL = "ws://127.0.0.1:8766";
-const PIPELINE_NAME = "BNP_PORTFOLIO";
+const PIPELINE_NAME = "BNP";
 const KEEP_ALIVE_ALARM = "bnp_keepalive";
 const RECONNECT_MIN_MS = 1000;   // V2: Faster reconnect (was 3000)
 const RECONNECT_MAX_MS = 30000;
@@ -203,7 +203,7 @@ function scheduleReconnect(delayMs) {
 // ── Tab Inventory ────────────────────────────────────────────────────────────
 function detectTargetFromUrl(url) {
   if (!url) return null;
-  
+
   // ── Auto Profile Identification ──
   // If the URL contains ?bnp_profile=Profile+X, we adopt that identity
   try {
@@ -215,9 +215,9 @@ function detectTargetFromUrl(url) {
       chrome.storage.local.set({ bnp_chrome_profile: bnpProfile });
       // WS will naturally report the new profile on next status ping or reconnection
     }
-  } catch (e) {}
+  } catch (e) { }
 
-  if (url.includes("gemini.google.com")) return "gemini_portfolio";
+  if (url.includes("gemini.google.com")) return "gemini";
   if (url.includes("notebooklm.google.com")) return "notebooklm";
   if (url.includes("chatgpt.com")) return "chatgpt";
   return null;
@@ -228,11 +228,13 @@ async function reportConnectedTabs() {
   const profile = cachedProfileName;
 
   try {
-    const tabs = await chrome.tabs.query({ url: [
-      "https://gemini.google.com/*",
-      "https://notebooklm.google.com/*",
-      "https://chatgpt.com/*"
-    ]});
+    const tabs = await chrome.tabs.query({
+      url: [
+        "https://gemini.google.com/*",
+        "https://notebooklm.google.com/*",
+        "https://chatgpt.com/*"
+      ]
+    });
 
     for (const tab of tabs) {
       const target = detectTargetFromUrl(tab.url);
@@ -261,8 +263,7 @@ async function reportConnectedTabs() {
 
 // ── Prompt Dispatch to Tab (works even when minimized) ────────────────────────
 async function dispatchPromptToTab(payload) {
-  // Portfolio extension: use target as-is (gemini_portfolio), no stripping
-  const targetName = payload.target || "gemini_portfolio";
+  const targetName = (payload.target || "").replace(/^gemini_.*/, "gemini");
 
   // Find the best matching tab for this target
   let targetTabId = null;
@@ -277,7 +278,6 @@ async function dispatchPromptToTab(payload) {
   // Fallback: query tabs directly (catches tabs opened before this worker started)
   if (!targetTabId) {
     const urlPatterns = {
-      gemini_portfolio: "https://gemini.google.com/*",
       gemini: "https://gemini.google.com/*",
       notebooklm: "https://notebooklm.google.com/*",
       chatgpt: "https://chatgpt.com/*",
@@ -306,6 +306,10 @@ async function dispatchPromptToTab(payload) {
   }
 
   try {
+    // Normalize the target in the payload so content scripts accept it
+    // e.g. "gemini_portfolio" → "gemini", "gemini_custom" → "gemini"
+    const normalizedPayload = { ...payload, target: targetName };
+
     // chrome.scripting.executeScript injects into the tab even if it's minimized.
     // We pass the payload as a serialized arg — it runs in the ISOLATED world
     // where our content script already lives.
@@ -317,7 +321,7 @@ async function dispatchPromptToTab(payload) {
         const payload = JSON.parse(payloadStr);
         window.dispatchEvent(new CustomEvent("bnp-prompt", { detail: payload }));
       },
-      args: [JSON.stringify(payload)],
+      args: [JSON.stringify(normalizedPayload)],
     });
     console.log(`[BNP BG] Prompt injected into tab [${targetTabId}] via executeScript`);
   } catch (e) {
@@ -341,7 +345,7 @@ async function dispatchPromptToTab(payload) {
               const payload = JSON.parse(payloadStr);
               window.dispatchEvent(new CustomEvent("bnp-prompt", { detail: payload }));
             },
-            args: [JSON.stringify(payload)],
+            args: [JSON.stringify(normalizedPayload)],
           });
           console.log(`[BNP BG] Retry injection succeeded for tab [${targetTabId}]`);
         }
@@ -358,7 +362,6 @@ async function dispatchPromptToTab(payload) {
 function getContentScriptFiles(target) {
   const map = {
     gemini: ["websocket_bridge.js", "content_gemini.js"],
-    gemini_portfolio: ["websocket_bridge.js", "content_gemini.js"],
     notebooklm: ["websocket_bridge.js", "content_notebooklm.js"],
     chatgpt: ["websocket_bridge.js", "content_chatgpt.js"],
   };
@@ -366,7 +369,7 @@ function getContentScriptFiles(target) {
 }
 
 async function dispatchSignalToTab(payload) {
-  const targetName = payload.target || "gemini_portfolio";
+  const targetName = (payload.target || "").replace(/^gemini_.*/, "gemini");
   let targetTabId = null;
 
   for (const [tabId, info] of connectedTabs) {

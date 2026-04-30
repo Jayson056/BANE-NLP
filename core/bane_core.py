@@ -96,6 +96,38 @@ class BaneCore:
         """
         from pipeline.engine import PipelineEngine
         
+        # --- AUTO LOAD BALANCER ---
+        target_norm = (target or "gemini").lower()
+        if target_norm.startswith("gemini_"): 
+            target_norm = "gemini"
+            
+        connected_profiles = [
+            p for p, t in self.bridge.get_active_profiles().items() 
+            if t.lower() == target_norm
+        ]
+        
+        if connected_profiles:
+            free_profile = None
+            # Find first available profile not currently locked
+            for p in connected_profiles:
+                if p not in self._browser_locks or not self._browser_locks[p].locked():
+                    free_profile = p
+                    break
+            
+            # If requested profile is disconnected, or busy (and we have a free one)
+            is_disconnected = chrome_profile and chrome_profile not in connected_profiles
+            is_busy = chrome_profile in self._browser_locks and self._browser_locks[chrome_profile].locked()
+            
+            if not chrome_profile or is_disconnected or (is_busy and free_profile):
+                if free_profile:
+                    log_event("LOAD_BALANCER", f"Routing request to free profile: '{free_profile}'")
+                    chrome_profile = free_profile
+                else:
+                    # All are busy. If we don't have a valid profile, just queue on the first active one.
+                    if not chrome_profile or is_disconnected:
+                        chrome_profile = connected_profiles[0]
+                        log_event("LOAD_BALANCER", f"All busy. Queuing on active profile: '{chrome_profile}'")
+
         # Instantiate the engine pipeline
         engine = PipelineEngine(self.bridge, self.response_handler, self.voice_engine)
         

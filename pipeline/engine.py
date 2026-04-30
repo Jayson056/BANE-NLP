@@ -14,6 +14,7 @@ Layers:
 """
 
 import asyncio
+import os
 import re
 import json
 from typing import Optional, Callable, List, Dict, Any, Union
@@ -281,6 +282,15 @@ class PipelineEngine:
                                 if is_valid:
                                     found_tools.append(sanitize_tool_call(repaired))
                                     consecutive_schema_failures = 0
+                                else:
+                                    consecutive_schema_failures += 1
+                                    log_event("SCHEMA", f"Repaired tool call validation failed: {reason}")
+                                    if ctx.on_partial: await ctx.on_partial({"status": f"[L3] ✗ Schema Validation Failed: {reason}"})
+                                    schema_error_msg = f"[SCHEMA VALIDATION FAILED]\nYour tool call was invalid: {reason}\nPlease fix the tool name or format and try again."
+                                    found_tools = [] 
+                                    batch_results = [f"--- [SCHEMA ERROR] ---\n{schema_error_msg}"]
+                                    combined_is_error = True
+                                    break
 
                 # 2. Check for Hallucinated JSON in raw text (failsafe)
                 if not found_tools and consecutive_schema_failures == 0 and ('"call_tool"' in text_clean or '"action"' in text_clean):
@@ -291,6 +301,14 @@ class PipelineEngine:
                          is_valid, reason = validate_tool_call(repaired, set(registry.tools.keys()))
                          if is_valid:
                              found_tools.append(sanitize_tool_call(repaired))
+                         else:
+                             consecutive_schema_failures += 1
+                             log_event("SCHEMA", f"Failsafe tool call validation failed: {reason}")
+                             if ctx.on_partial: await ctx.on_partial({"status": f"[L3] ✗ Schema Validation Failed: {reason}"})
+                             schema_error_msg = f"[SCHEMA VALIDATION FAILED]\nYour tool call was invalid: {reason}\nPlease fix the tool name or format and try again."
+                             found_tools = [] 
+                             batch_results = [f"--- [SCHEMA ERROR] ---\n{schema_error_msg}"]
+                             combined_is_error = True
 
                 # V2 Phase 2: Abort if stuck in a schema validation failure loop
                 if consecutive_schema_failures >= 3:
@@ -345,6 +363,19 @@ class PipelineEngine:
                             consecutive_errors = 0
                             if ctx.on_partial: await ctx.on_partial({"status": f"[L3] ✓ TOOL OK: {actual_tool_name}"})
                             
+                            # ── FIX 3: Auto-reload MCP tools when AI modifies tool source files ──
+                            # If a write_file/write_file_b64 just succeeded on a file inside
+                            # mcp_custom/, the runtime function cache is now stale. Hot-reload
+                            # so the next tool call uses the updated code.
+                            if actual_tool_name in ("file_tools.write_file", "file_tools.write_file_b64"):
+                                written_path = str(args.get("path", "")).replace("/", os.sep).replace("\\", os.sep)
+                                if "mcp_custom" in written_path:
+                                    try:
+                                        registry.hot_reload()
+                                        log_event("ANALYZE", f"Auto hot-reloaded MCP tools after write to {written_path}")
+                                    except Exception as hr_err:
+                                        log_event("ANALYZE", f"Hot-reload failed after MCP write: {hr_err}")
+                            
                         batch_results.append(f"--- [BATCH ITEM {idx+1}: {actual_tool_name}] ---\n{tool_result}")
                         processed_count += 1
                 else:
@@ -356,6 +387,17 @@ class PipelineEngine:
 
                 # 5. Compile Feedback
                 final_tool_result = "\n\n".join(batch_results)
+                
+                # ── Security: Scrub credentials from AI feedback ──
+                import config
+                tg_token = getattr(config, "TELEGRAM_TOKEN", None)
+                if tg_token and isinstance(tg_token, str):
+                    final_tool_result = final_tool_result.replace(tg_token, "[REDACTED_TOKEN]")
+                    
+                for uid in getattr(config, "ALLOWED_TELEGRAM_USERS", []):
+                    final_tool_result = final_tool_result.replace(str(uid), "[ADMIN_TELEGRAM_ID]")
+                for uid in getattr(config, "ALLOWED_MESSENGER_USERS", []):
+                    final_tool_result = final_tool_result.replace(str(uid), "[ADMIN_MESSENGER_ID]")
                 
                 # Build the feedback block (using the last tool's metadata for the directive logic)
                 status_block, directive = await self._build_adaptive_feedback(
@@ -383,15 +425,23 @@ class PipelineEngine:
                     "directive": directive
                 })
                 
+                # Scrub user ID for iteration header
+                import config as _cfg
+                _display_uid = str(ctx.user_id)
+                if _display_uid in [str(u) for u in getattr(_cfg, "ALLOWED_TELEGRAM_USERS", [])]:
+                    _display_uid = "[ADMIN_TELEGRAM_ID]"
+                elif _display_uid in [str(u) for u in getattr(_cfg, "ALLOWED_MESSENGER_USERS", [])]:
+                    _display_uid = "[ADMIN_MESSENGER_ID]"
+
                 tool_result_prompt = (
                     f"═══ MESSAGE SOURCE ═══\n"
                     f"FROM: {ctx.platform.upper()}\n"
-                    f"USER_ID: {ctx.user_id}\n"
+                    f"USER_ID: {_display_uid}\n"
                     f"RESPOND VIA: {ctx.platform.upper()} delivery pipeline\n"
                     f"═══════════════════════\n"
                     "[KNOWLEDGE BASE] BANE_CONTEXT_FILES/BANE_NLP_BRAIN_knowledge.md\n"
                     "[COMMAND_MODE: AUTONOMOUS_ITERATION]\n"
-                    f"[USER_ID: {ctx.user_id}]\n"
+                    f"[USER_ID: {_display_uid}]\n"
                     "\n[SYSTEM NOTICE] Tool execution result provided below. Follow rules and proceed with NEXT TOOL CALL or FINAL RESPONSE.\n"
                     f"USER: {tool_result_content}"
                 )
@@ -524,19 +574,45 @@ class PipelineEngine:
         )
         
         if consecutive_errors <= 1:
-            # ── Tier 1: First error — standard retry ──
+            # ── Tier 1: First error — standard retry with context-specific hints ──
             directive = (
                 f"BANE: Iteration {turns} — tool failed. You have unlimited retries.\n"
                 f"READ the error message carefully. Fix the args or approach and retry.\n"
                 f"DO NOT repeat the exact same failing command. Analyze WHY it failed.\n"
             )
             
-            # Specific hint for newline escaping & name variables
+            # ── Context-specific command fix hints ──
+            result_lower = tool_result.lower()
+            args_str = str(args)
+            
+            # SyntaxError hints
             if "SyntaxError" in tool_result:
-                if "\\n" in tool_result or "\\n" in str(args):
+                if "\\n" in tool_result or "\\n" in args_str:
                     directive += "CRITICAL: You wrote literal '\\n' characters into the file instead of real newlines. RE-WRITE THE FILE using actual newlines (hit enter key) in your JSON content string.\n"
                 elif "'name' is not defined" in tool_result:
                     directive += "CRITICAL: You used 'name' instead of '__name__'. Re-write the code with correct Python standard variables.\n"
+                else:
+                    directive += "HINT: SyntaxError detected. Use file_tools.write_file_b64 with Base64-encoded content to avoid JSON escaping issues.\n"
+            
+            # Command-specific hints
+            if tool_name and "command_tools" in tool_name:
+                if "is not recognized" in result_lower or "'cmd' is not recognized" in result_lower:
+                    directive += "HINT: Command not recognized. Use full executable path or ensure the program is on PATH. OS is Windows.\n"
+                elif "access is denied" in result_lower or "permission denied" in result_lower:
+                    directive += "HINT: Access denied. Try running with 'elevated': true, or check if the file/dir is read-only.\n"
+                elif "the system cannot find" in result_lower or "no such file" in result_lower:
+                    directive += "HINT: Path not found. Use file_tools.list_dir to verify the path exists before retrying.\n"
+                elif "the process cannot access" in result_lower:
+                    directive += "HINT: File is locked by another process. Try closing the file first or use a different filename.\n"
+            
+            # Path/file hints
+            if tool_name and "file_tools" in tool_name:
+                if "no such file" in result_lower or "filenotfounderror" in result_lower:
+                    directive += "HINT: File not found. Run file_tools.list_dir on the parent directory to check what exists.\n"
+                elif "permission" in result_lower:
+                    directive += "HINT: Permission error. Ensure the path is inside D:\\Project_Workspace or check if the file is read-only.\n"
+                elif "unterminated string" in result_lower or "json" in result_lower:
+                    directive += "HINT: JSON escaping issue. Switch to file_tools.write_file_b64 with Base64-encoded content.\n"
             
             directive += "DO NOT claim success. Either fix it or explain the failure to the user."
         
@@ -675,6 +751,21 @@ class PipelineEngine:
         text = re.sub(r'DIAGNOSTIC HINTS:[\s\S]*?Fix the root cause\..*$', '', text, flags=re.IGNORECASE | re.MULTILINE)
         text = re.sub(r'MANDATORY ACTIONS:[\s\S]*?output "\[ABORT TASK\]".*$', '', text, flags=re.IGNORECASE | re.MULTILINE)
         text = re.sub(r'\n{3,}', '\n\n', text)
+        
+        # 3c. Strip hallucinated verification/success blocks
+        # Gemini sometimes outputs fake "Verification Results" claiming success
+        # even when the preceding tool call failed. Strip these boilerplate blocks.
+        text = re.sub(
+            r'(?:^|\n)\s*(?:Verification|Confirmation)\s+Results?\s*[:\n]'
+            r'[\s\S]*?(?:(?:fully\s+)?operational|confirmed|successfully|verified|everything\s+is\s+now)'
+            r'[\s\S]*?(?=\n\n|\Z)',
+            '', text, flags=re.IGNORECASE
+        )
+        # Strip "Confirmed operational" / "Integration verified" one-liners
+        text = re.sub(r'^.*?(?:Confirmed|Integration|Pipeline)\s+(?:operational|verified|complete).*$', '', text, flags=re.MULTILINE | re.IGNORECASE)
+        # Strip "The TypeError was resolved" retrospective claims
+        text = re.sub(r'^.*?(?:The\s+)?(?:TypeError|ImportError|NameError)\s+was\s+resolved.*$', '', text, flags=re.MULTILINE | re.IGNORECASE)
+        text = re.sub(r'^.*?Everything is now (?:physically )?complete.*$', '', text, flags=re.MULTILINE | re.IGNORECASE)
         
         # 4. JSON Extraction (Strip raw JSON if AI echoed tool result, but NEVER strip tool calls)
         json_data = self._extract_json(text)

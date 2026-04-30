@@ -23,7 +23,7 @@
   }
   window.__BNP_BRIDGE_ACTIVE = true;
 
-  const PIPELINE_NAME = "BNP_PORTFOLIO";
+  const PIPELINE_NAME = "BNP";
 
   console.log("[BNP Bridge] v1.2.0 — Relay-only mode (WS owned by background.js)");
 
@@ -39,7 +39,7 @@
   // ── Target Detection ────────────────────────────────────────────────────────
   function detectTarget() {
     const url = window.location.href;
-    if (url.includes("gemini.google.com")) return "gemini_portfolio";
+    if (url.includes("gemini.google.com")) return "gemini";
     if (url.includes("notebooklm.google.com")) return "notebooklm";
     if (url.includes("chatgpt.com")) return "chatgpt";
     return "unknown";

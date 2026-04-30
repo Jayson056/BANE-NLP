@@ -73,7 +73,7 @@ def _build_orchestration_prompt(ctx: PipelineContext) -> str:
         import os
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-        kb_path = os.path.join(base_dir, "Docs", "InjectionHeaderContext", "BANE_NLP_BRAIN_knowledge.md")
+        kb_path = os.path.join(base_dir, "Docs", "InjectionHeaderContext", "BANE_SYSTEM_INSTRUCTIONS.md")
         if os.path.exists(kb_path):
             with open(kb_path, 'r', encoding='utf-8') as f:
                 kb_content = f.read()
@@ -92,6 +92,37 @@ def _build_orchestration_prompt(ctx: PipelineContext) -> str:
         kb_content = ""
         notes_content = ""
 
+    # ── FIX 4a: Dynamic Scope Routing ──
+    # If the user explicitly asks to work on BANE or MCP tools, we must lift the 
+    # READ-ONLY restriction and make D:\Bane_NLP the primary active workspace.
+    intent_lower = ctx.clean_message.lower()
+    is_bane_task = any(kw in intent_lower for kw in ["bane", "mcp", "pipeline", "engine", "registry", "tool_schema"])
+    
+    if is_bane_task:
+        drive_map = (
+            f"=======================================\n"
+            f"D: DRIVE MAP (FILESYSTEM AWARENESS):\n"
+            f"  D:\\Bane_NLP\\            ← ACTIVE WORKSPACE (User requested BANE/MCP modifications)\n"
+            f"  D:\\Project_Workspace\\   ← User projects (Secondary)\n"
+            f"  RULE: Default to D:\\Bane_NLP for all file operations because this is a system-level task.\n"
+            f"=======================================\n\n"
+        )
+        workspace_rule = f"7. WORKSPACE: Default to D:\\Bane_NLP. The user explicitly asked to modify the system/tools."
+    else:
+        drive_map = (
+            f"=======================================\n"
+            f"D: DRIVE MAP (FILESYSTEM AWARENESS):\n"
+            f"  D:\\Project_Workspace\\   ← DEFAULT for user project operations\n"
+            f"  D:\\Bane_NLP\\            ← BANE engine (READ-ONLY)\n"
+            f"  D:\\Meter-Reader-Pro\\    ← Mobile app project\n"
+            f"  D:\\WebDev\\              ← Web dev projects\n"
+            f"  D:\\MYPROJECT\\           ← Legacy projects\n"
+            f"  RULE: 'my workspace' / 'my projects' → D:\\Project_Workspace\n"
+            f"  RULE: NEVER default to D:\\Bane_NLP for user file operations\n"
+            f"=======================================\n\n"
+        )
+        workspace_rule = f"7. WORKSPACE: When user mentions 'my workspace', 'Project_Workspace', or asks to list/create files without a path, ALWAYS use D:\\Project_Workspace — NEVER D:\\Bane_NLP."
+
     return (
         f"[BANE NLP WORKFLOW ORCHESTRATOR]\n\n"
         f"Your task: Analyze the raw user intent below and revise it into a clear, "
@@ -103,16 +134,7 @@ def _build_orchestration_prompt(ctx: PipelineContext) -> str:
         f"HAS FILES     : {has_files}\n"
         f"USER ID       : {ctx.user_id}\n"
         f"SOURCE        : {ctx.platform.upper()}\n\n"
-        f"=======================================\n"
-        f"D: DRIVE MAP (FILESYSTEM AWARENESS):\n"
-        f"  D:\\Project_Workspace\\   ← DEFAULT for user project operations\n"
-        f"  D:\\Bane_NLP\\            ← BANE engine (READ-ONLY)\n"
-        f"  D:\\Meter-Reader-Pro\\    ← Mobile app project\n"
-        f"  D:\\WebDev\\              ← Web dev projects\n"
-        f"  D:\\MYPROJECT\\           ← Legacy projects\n"
-        f"  RULE: 'my workspace' / 'my projects' → D:\\Project_Workspace\n"
-        f"  RULE: NEVER default to D:\\Bane_NLP for user file operations\n"
-        f"=======================================\n\n"
+        f"{drive_map}"
         f"=======================================\n"
         f"DESIGNATED SAVE PATHS (MANDATORY — always use these):\n"
         f"  TTS / Audio output  -> {os.path.join(base_dir, 'temp_audio')}\n"
@@ -140,9 +162,9 @@ def _build_orchestration_prompt(ctx: PipelineContext) -> str:
         f"4. ONLY provide workflows using the exact MCP tools documented above.\n"
         f"5. When the plan includes TTS or screenshots, ALWAYS include the exact save path from DESIGNATED SAVE PATHS.\n"
         f"6. If HAS FILES is Yes, explicitly instruct the AI to directly analyze the attached images/files natively from its context window. Do NOT instruct the AI to use MCP file tools (like list_dir or read_file) to read the user's attachments.\n"
-        f"7. WORKSPACE: When user mentions 'my workspace', 'Project_Workspace', or asks to list/create files without a path, ALWAYS use D:\\Project_Workspace — NEVER D:\\Bane_NLP.\n"
+        f"{workspace_rule}\n"
         f"8. Output ONLY the final revised prompt. No preamble. No commentary.\n"
-        f"9. SURGICAL PRIORITY: For bug fixes, port changes, or single-line code updates, ALWAYS prioritize 'system.surgical_edit' in the workflow to avoid file corruption."
+        f"9. SURGICAL PRIORITY: For bug fixes, port changes, or specific updates, ALWAYS prioritize 'system.multi_replace_file_content' or 'system.replace_file_content' in the workflow to avoid massive payloads and file corruption."
     )
 
 
